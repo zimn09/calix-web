@@ -1,0 +1,4348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1020">
+  <title>Calix</title>
+  <style>
+:root {
+  --bg: #0b1020;
+  --surface: #13182a;
+  --surface-alt: #0f1529;
+  --border: #1e2438;
+  --text: #e8ecf5;
+  --muted: #8b95a7;
+  --accent: #4dabf7;
+  --green: #69db7c;
+  --yellow: #ffd43b;
+  --red: #ff6b6b;
+  --radius: 12px;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: #05070f;
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+}
+
+body { display: flex; justify-content: center; }
+
+.app {
+  width: 100%;
+  max-width: 460px;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ------------------------------------------------------------- top bar */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 14px 9px 6px;
+  background: var(--surface-alt);
+  border-bottom: 1px solid var(--border);
+  flex: 0 0 auto;
+  min-height: 58px;
+}
+
+.topbar .back {
+  width: 38px;
+  height: 38px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+.topbar .back:hover { background: #182036; color: var(--text); }
+.topbar .back svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.titles { min-width: 0; }
+.titles h1 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.titles .sub {
+  font-size: 10px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* -------------------------------------------------------------- screen */
+.screen {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.screen > * { flex: 0 0 auto; }
+
+.screen::-webkit-scrollbar { width: 0; }
+
+h2.section {
+  margin: 4px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+}
+
+.card.flush { padding: 6px; }
+.card.plain { padding: 0; }
+
+.muted { color: var(--muted); font-size: 11px; }
+.tiny { font-size: 10px; }
+
+.row { display: flex; align-items: center; gap: 8px; }
+.row.between { justify-content: space-between; }
+.spacer { flex: 1 1 auto; }
+.stack { display: flex; flex-direction: column; gap: 6px; }
+.stack.tight { gap: 2px; }
+
+/* ------------------------------------------------------------ progress */
+.progress-head { display: flex; align-items: center; gap: 8px; }
+.progress-head .title { font-size: 14px; font-weight: 600; flex: 1; }
+.progress-head .count { font-size: 12px; color: var(--muted); }
+
+.bar {
+  height: 6px;
+  border-radius: 99px;
+  background: var(--border);
+  overflow: hidden;
+  margin: 6px 0 4px;
+}
+.bar > i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 99px;
+  transition: width .25s ease;
+}
+.bar.thin { height: 4px; }
+.bar.green > i { background: var(--green); }
+.bar.yellow > i { background: var(--yellow); }
+
+/* --------------------------------------------------------------- tiles */
+.tiles { display: flex; gap: 8px; }
+.tile {
+  flex: 1 1 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: var(--text);
+  font: inherit;
+  font-size: 11px;
+  transition: border-color .15s, transform .05s;
+}
+.tile:hover { border-color: #2a3550; }
+.tile:active { transform: scale(.98); }
+.tile svg { width: 22px; height: 22px; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* --------------------------------------------------------------- lists */
+.list { display: flex; flex-direction: column; }
+
+.item-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .15s, transform .05s;
+}
+.item-card:hover { border-color: #2a3550; }
+.item-card:active { transform: scale(.995); }
+.item-card .text { min-width: 0; flex: 1 1 auto; }
+.item-card .text .name { display: block; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item-card .text .meta { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
+.item-card .go { color: var(--green); flex: 0 0 auto; display: grid; place-items: center; }
+.item-card .go svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.6; }
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 8px;
+  background: transparent;
+  border: 0;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  transition: background .15s;
+}
+.item:hover { background: #1a2138; }
+
+.item .icon { flex: 0 0 auto; display: grid; place-items: center; }
+.item .icon svg { width: 18px; height: 18px; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.item .text { min-width: 0; flex: 1 1 auto; }
+.item .text .name {
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.item .text .meta { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.item .chev { color: #4a5568; flex: 0 0 auto; display: grid; place-items: center; }
+.item .chev svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+.cat-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 4px 4px;
+}
+.cat-head .bar-y { width: 3px; height: 14px; border-radius: 2px; }
+.cat-head .name { font-size: 12px; font-weight: 600; }
+
+/* ------------------------------------------------------------ filters */
+.search {
+  position: relative;
+}
+.search svg {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  stroke: var(--muted);
+  fill: none;
+  stroke-width: 2;
+}
+.search input {
+  width: 100%;
+  padding: 10px 12px 10px 34px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  outline: none;
+}
+.search input:focus { border-color: #2a3550; }
+.search input::placeholder { color: #5d6779; }
+
+.chips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+.chips::-webkit-scrollbar { height: 0; }
+.chip {
+  flex: 0 0 auto;
+  padding: 6px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.chip.selected {
+  background: #1c3a5c;
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+/* -------------------------------------------------------------- detail */
+.badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  background: #0e1626;
+}
+.badge.completed { color: var(--green); }
+.badge.training { color: var(--yellow); }
+.badge.available { color: var(--accent); }
+.badge.locked { color: #4a5568; }
+
+.desc { font-size: 12px; line-height: 1.45; }
+.steps { display: flex; flex-direction: column; gap: 6px; }
+.step { display: flex; gap: 6px; font-size: 11px; color: var(--text); }
+.step b { color: var(--muted); font-weight: 400; }
+.note { font-size: 11px; color: var(--yellow); line-height: 1.4; }
+
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.actions .btn { flex: 1 1 0; }
+
+/* ------------------------------------------------------------- buttons */
+.btn {
+  flex: 0 0 auto;
+  min-width: 130px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 12px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: var(--accent);
+  color: #06111f;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter .15s, transform .05s;
+}
+.btn:hover { filter: brightness(1.06); }
+.btn:active { transform: scale(.99); }
+.btn:disabled { opacity: .45; cursor: default; filter: none; }
+.btn.outline {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text);
+}
+.btn.outline:hover { border-color: #2a3550; }
+.btn.danger { background: transparent; border-color: #4a2530; color: var(--red); }
+.btn.green { background: var(--green); color: #06200d; }
+.btn.small { padding: 8px 10px; font-size: 11px; min-width: 0; }
+.btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* --------------------------------------------------------------- sets */
+.set-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px;
+  font-size: 12px;
+}
+.set-row .check {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 0;
+  background: transparent;
+  color: #4a5568;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.set-row .check svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
+.set-row .check.on { color: var(--green); }
+.set-row .amount { color: var(--muted); }
+
+/* --------------------------------------------------------------- stats */
+.stat { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.stat .k { color: var(--muted); }
+.stat .v { margin-left: auto; font-weight: 600; }
+
+/* -------------------------------------------------------------- misc */
+.list-tile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+}
+.list-tile:last-child { border-bottom: 0; }
+.list-tile:hover { background: #1a2138; }
+.list-tile .lt-icon { color: var(--muted); display: grid; place-items: center; }
+.list-tile .lt-icon svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.list-tile .lt-title { display: block; font-size: 13px; }
+.list-tile .lt-sub { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; word-break: break-all; }
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 28px 12px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+.empty svg { width: 34px; height: 34px; stroke: #4a5568; fill: none; stroke-width: 1.6; }
+
+.big-icon {
+  display: grid;
+  place-items: center;
+  margin-bottom: 4px;
+}
+.big-icon svg { width: 44px; height: 44px; fill: none; stroke: var(--yellow); stroke-width: 1.6; }
+
+.center { text-align: center; }
+.mt { margin-top: 8px; }
+
+/* ----------------------------------------------------------- bottombar */
+.bottombar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: stretch;
+  height: 70px;
+  background: var(--surface-alt);
+  border-top: 1px solid var(--border);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.bottombar button {
+  flex: 1 1 0;
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  font: inherit;
+  font-size: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 6px 2px;
+  position: relative;
+  transition: color .15s;
+}
+.bottombar button svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.bottombar button.active { color: var(--accent); }
+.bottombar button.active::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  width: 44px;
+  height: 26px;
+  border-radius: 13px;
+  background: #1c3a5c;
+  opacity: .55;
+  z-index: 0;
+}
+.bottombar button > * { position: relative; z-index: 1; }
+
+/* --------------------------------------------------------------- toast */
+.toast {
+  position: absolute;
+  left: 50%;
+  bottom: 86px;
+  transform: translateX(-50%);
+  max-width: 86%;
+  background: #1d2740;
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .4);
+  z-index: 20;
+}
+
+@media (min-width: 520px) {
+  body { padding: 0; background: #05070f; }
+  .app {
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    box-shadow: 0 0 40px rgba(0, 0, 0, .45);
+  }
+}
+
+</style>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230b1020'/><path d='M9 22V10h4v5h6v-5h4v12h-4v-4h-6v4z' fill='%234dabf7'/></svg>">
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="topbar">
+      <button class="back" id="back" aria-label="Back" hidden>
+        <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" /></svg>
+      </button>
+      <div class="titles">
+        <h1 id="page-title">Calix</h1>
+        <div class="sub" id="page-sub">offline calisthenics</div>
+      </div>
+    </header>
+
+    <main id="screen" class="screen"></main>
+
+    <div class="card" id="boot-error" hidden style="margin:12px">
+      <div class="desc" style="font-weight:600">Aplikace se nenačetla</div>
+      <div class="muted" style="margin-top:4px">
+        Chybí soubory <code>js/</code> nebo <code>css/</code> vedle <code>index.html</code>.
+        Zkus jednosouborovou verzi <code>calix.html</code>.
+      </div>
+    </div>
+
+    <nav class="bottombar" id="nav">
+      <button data-tab="0" class="active">
+        <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></svg>
+        <span>Home</span>
+      </button>
+      <button data-tab="1">
+        <svg viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M5 12H3m18 0h-2M6.3 6.3 4.9 4.9m14.2 14.2-1.4-1.4M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"/></svg>
+        <span>Skills</span>
+      </button>
+      <button data-tab="2">
+        <svg viewBox="0 0 24 24"><path d="M4 9v6M7 7v10M17 7v10M20 9v6M7 12h10"/></svg>
+        <span>Train</span>
+      </button>
+      <button data-tab="3">
+        <svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 4-6"/></svg>
+        <span>Stats</span>
+      </button>
+      <button data-tab="4">
+        <svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
+        <span>More</span>
+      </button>
+    </nav>
+
+    <div class="toast" id="toast" hidden></div>
+    <input type="file" id="import-file" accept=".json,application/json" hidden>
+  </div>
+
+  <script>
+window.CALIX_CATALOG = {
+ "version": 1,
+ "categories": [
+  {
+   "key": "push",
+   "name": "Pushing",
+   "color": "#ff6b6b"
+  },
+  {
+   "key": "pull",
+   "name": "Pulling",
+   "color": "#4dabf7"
+  },
+  {
+   "key": "core",
+   "name": "Core",
+   "color": "#ffd43b"
+  },
+  {
+   "key": "balance",
+   "name": "Balance",
+   "color": "#b197fc"
+  },
+  {
+   "key": "static",
+   "name": "Static Holds",
+   "color": "#38d9a9"
+  },
+  {
+   "key": "legs",
+   "name": "Legs",
+   "color": "#ff922b"
+  }
+ ],
+ "skills": [
+  {
+   "id": "wall_pushup",
+   "name": "Wall Push-Up",
+   "category": "push",
+   "category_name": "Pushing",
+   "category_color": "#ff6b6b",
+   "tier": 0,
+   "tier_name": "Beginner",
+   "description": "Push-ups against a wall. The gentlest way to learn the pressing pattern and shoulder-blade control.",
+   "steps": [
+    "Stand an arm's length from the wall",
+    "Lower your chest to the wall, elbows ~45° from the body",
+    "Press away keeping a straight line from head to heels"
+   ],
+   "exercises": [
+    "3 x 10-15 wall push-ups",
+    "2 x 30 s wall plank"
+   ],
+   "regressions": [
+    "Step the feet closer to the wall"
+   ],
+   "unit": "reps",
+   "target": 20,
+   "note": "",
+   "prereqs": []
+  },
+  {
+   "id": "incline_pushup",
+   "name": "Incline Push-Up",
+   "category": "push",
+   "category_name": "Pushing",
+   "category_color": "#ff6b6b",
+   "tier": 0,
+   "tier_name": "Beginner",
+   "description": "Hands on a bench, table or stairs. Lower the incline over time as you get stronger.",
+   "steps": [
+    "Hands on a counter",
+    "Hands on a sturdy bench",
+    "Hands on a low step"
+   ],
+   "exercises": [
+    "3 x 8-12 incline push-ups",
+    "Lower the incline once you reach 3 x 12"
+   ],
+   "regressions": [
+    "Wall push-ups"
+   ],
+   "unit": "reps",
+   "target": 15,
+   "note": "",
+   "prereqs": [
+    "wall_pushup"
+   ]
+  },
+  {
+   "id": "pushup",
+   "name": "Push-Up",
+   "category": "push",
+   "category_name": "Pushing",
+   "category_color": "#ff6b6b",
+   "tier": 0,
+   "tier_name": "Beginner",
+   "description": "The foundation of all pushing. Rigid plank, elbows ~45°, chest to the floor.",
+   "steps": [
+    "Clean incline push-ups",
+    "Slow negatives (3-5 s down) from the floor",
+    "Full push-ups"
+   ],
+   "exercises": [
+    "4 x 5-10 push-ups",
+    "3 x 30 s plank"
+   ],
+   "regressions": [
+    "Incline push-ups",
+    "Knee push-ups"
+   ],
+   "unit": "reps",
+   "target": 20,
+   "note": "",
+   "prereqs": [
+    "incline_pushup"
+   ]
+  },
+  {
+   "id": "diamond_pushup",
+   "name": "Diamond Push-Up",
+   "category": "push",
+   "category_name": "Pushing",
+   "category_color": "#ff6b6b",
+   "tier": 1,
+   "tier_name": "Intermediate",
+   "description": "Hands close under the chest. Shifts load toward triceps and inner chest.",
+   "steps": [
+    "Close-grip push-ups",
+    "Thumbs and index fingers touching",
+    "Keep elbows tucked and shoulders packed"
+   ],
+   "exercises": [
+    "3 x 6-10 diamond push-ups",
+    "2 x 10 close-grip push-ups"
+   ],
+   "regressions": [
+    "Close-grip push-ups",
+    "Incline diamond push-ups"
+   ],
+   "unit": "reps",
+   "target": 15,
+   "note": "",
+   "prereqs": [
+    "pushup"
+   ]
+  },
+  {
+   "id": "decline_pushup",
+   "name": "Decline Push-Up",
+   "category": "push",
+   "category_name": "Pushing",
+   "category_color": "#ff6b6b",
+   "tier": 1,
+   "tier_name": "Intermediate",
+   "description": "Feet elevated to shift load onto the shoulders. The key bridge toward handstand and planche work.",
+   "steps": [
+    "Feet on a low step",
+    "Feet at knee height",
+    "Feet at hip height or higher"
+   ],
+   "exercises": [
+    "3 x 8-12 decline push-ups",
+    "3 x 5 slow negatives"
+   ],
+   "regressions": [
+    "Lower the feet elevation"
+   ],
+   "unit": "reps",
+   "target": 15,
+   "note": "",
+   "prereqs": [
+    "pushup"
+   ]
+  },
+  {
+   "id": "pike_pushup",
+   "name": "Pike Push-Up",
+   "category": "push",
+   "category_name": "Pushing",
+   "category_color": "#ff6b6b",
+   "tier": 1,
+   "tier_name": "Intermediate",
+   "description": "Hips high, head travelling between the hands. A vertical-press pattern that builds handstand push-up strength.",
+   "steps": [
+    "Floor pike push-ups",
+    "Feet elevated on a box",
+    "Head travels forward past the hands"
+   ],
+   "exercises": [
+    "3 x 6-10 pike push-ups",
+    "3 x 20 s pike holds"
+   ],
+   "regressions": [
+    "Hands-elevated pike push-ups"
+   ],
+   "unit": "reps",
+   "target": 12,
+   "note": "",
+   "prereqs": [
+    "pushup"
+   ]
+  },
+  {
+   "id": "dip",
+   "name": "Parallel Bar Dip",
+   "category": "push",
+   "category_name": "Pushing",
+   "category_color": "#ff6b6b",
+   "tier": 1,
+   "tier_name": "Intermediate",
+   "description": "Pressing between parallel bars. Builds chest, triceps and shoulders; essential for muscle-ups and planche.",
+   "steps": [
+    "Bar support hold",
+    "Bench dips or box-assisted dips",
+    "Slow negatives",
+    "Full-depth dips"
+   ],
+   "exercises": [
+    "4 x 5-10 dips",
+    "3 x 5 negatives (4 s down)"
+   ],
+   "regressions": [
+    "Bench dips",
+    "Band-assisted dips",
+    "Negative-only dips"
+   ],
+   "unit": "reps",
+   "target": 12,
+   "note": "Don't bounce out of the bottom, and stop if the front of the shoulder hurts.",
+   "prereqs": [
+    "pushup",
+    "support_hold"
+   ]
+  },
+  {
+   "id": "archer_pushup",
+   "name": "Archer Push-Up",
+   "category": "push",
+   "category_name": "Pushing",
+   "category_color": "#ff6b6b",
+   "tier": 2,
+   "tier_name": "Advanced",
+   "description": "Wide push-up shifting weight to one arm while the other stays straight. The bridge to one-arm push-ups.",
+   "steps": [
+    "Wide push-ups",
+    "Side-to-side shifts at the bottom",
+    "Archer push-ups with a towel-assisted straight arm"
+   ],
+   "exercises": [
+    "3 x 4-6 per side"
+   ],
+   "regressions": [
+    "Wide push-up shifts",
+    "Band- or towel-assisted archers"
+   ],
+   "unit": "reps",
+   "target": 8,
+   "note": "",
+   "prereqs": [
+    "diamond_pushup",
+    "decline_pushup"
+   ]
+  },
+  {
+   "id": "one_arm_pushup",
+   "name": "One-Arm Push-Up",
+   "category": "push",
+   "category_name": "Pushing",
+   "category_color": "#ff6b6b",
+   "tier": 3,
+   "tier_name": "Elite",
+   "description": "Elite unilateral push demanding huge pressing strength and anti-rotation control.",
+   "steps": [
+    "Archer push-ups with minimal assist",
+    "Elevated one-arm negatives",
+    "One-arm push-up with wide feet"
+   ],
+   "exercises": [
+    "5 x 2-3 per side",
+    "Elevated one-arm push-ups"
+   ],
+   "regressions": [
+    "Elevated one-arm push-ups",
+    "Archer push-ups"
+   ],
+   "unit": "reps",
+   "target": 3,
+   "note": "",
+   "prereqs": [
+    "archer_pushup"
+   ]
+  },
+  {
+   "id": "planche_lean",
+   "name": "Planche Lean",
+   "category": "push",
+   "category_name": "Pushing",
+   "category_color": "#ff6b6b",
+   "tier": 1,
+   "tier_name": "Intermediate",
+   "description": "Straight-arm plank with the shoulders pushed forward past the hands. Entry point to planche training.",
+   "steps": [
+    "Plank leaning a little forward",
+    "Increase the lean until shoulders are well over the hands",
+    "Hold with protracted shoulders and posterior pelvic tilt"
+   ],
+   "exercises": [
+    "4 x 15-20 s planche leans"
+   ],
+   "regressions": [
+    "Shallower lean angle"
+   ],
+   "unit": "s",
+   "target": 20,
+   "note": "Straight-arm strength work loads the elbows, biceps tendons and wrists heavily. Warm up thoroughly and add volume slowly over weeks and months.",
+   "prereqs": [
+    "pushup"
+   ]
+  },
+  {
+   "id": "pseudo_planche_pushup",
+   "name": "Pseudo Planche Push-Up",
+   "category": "push",
+   "category_name": "Pushing",
+   "category_color": "#ff6b6b",
+   "tier": 2,
+   "tier_name": "Advanced",
+   "description": "Push-ups with hands by the hips and a forward lean. Builds dynamic planche strength.",
+   "steps": [
+    "Hands at the lower ribs",
+    "Hands at the hips, deeper lean",
+    "Add a hollow body line"
+   ],
+   "exercises": [
+    "4 x 5-8 pseudo planche push-ups"
+   ],
+   "regressions": [
+    "Less lean",
+    "Hands higher up the torso"
+   ],
+   "unit": "reps",
+   "target": 8,
+   "note": "Straight-arm strength work loads the elbows, biceps tendons and wrists heavily. Warm up thoroughly and add volume slowly over weeks and months.",
+   "prereqs": [
+    "planche_lean",
+    "decline_pushup"
+   ]
+  },
+  {
+   "id": "tuck_planche",
+   "name": "Tuck Planche",
+   "category": "push",
+   "category_name": "Pushing",
+   "category_color": "#ff6b6b",
+   "tier": 2,
+   "tier_name": "Advanced",
+   "description": "Feet off the floor, knees tucked tight to the chest, arms straight.",
+   "steps": [
+    "Planche lean with one foot lifting",
+    "Tuck hold on parallettes",
+    "Round upper back, protract shoulders"
+   ],
+   "exercises": [
+    "5 x 5-10 s tuck holds",
+    "Tuck planche leans"
+   ],
+   "regressions": [
+    "Planche lean with toes touching",
+    "Band-assisted tuck planche"
+   ],
+   "unit": "s",
+   "target": 10,
+   "note": "Straight-arm strength work loads the elbows, biceps tendons and wrists heavily. Warm up thoroughly and add volume slowly over weeks and months.",
+   "prereqs": [
+    "planche_lean",
+    "dip"
+   ]
+  },
+  {
+   "id": "adv_tuck_planche",
+   "name": "Advanced Tuck Planche",
+   "category": "push",
+   "category_name": "Pushing",
+   "category_color": "#ff6b6b",
+   "tier": 2,
+   "tier_name": "Advanced",
+   "description": "Back flat and hips level with the shoulders, knees still bent.",
+   "steps": [
+    "Tuck planche with hips rising",
+    "Flat-back tuck",
+    "Hold with hips at shoulder height"
+   ],
+   "exercises": [
+    "5 x 5-8 s advanced tuck holds"
+   ],
+   "regressions": [
+    "Regular tuck planche"
+   ],
+   "unit": "s",
+   "target": 10,
+   "note": "Straight-arm strength work loads the elbows, biceps tendons and wrists heavily. Warm up thoroughly and add volume slowly over weeks and months.",
+   "prereqs": [
+    "tuck_planche",
+    "pseudo_planche_pushup"
+   ]
+  },
+  {
+   "id": "straddle_planche",
+   "name": "Straddle Planche",
+   "category": "push",
+   "category_name": "Pushing",
+   "category_color": "#ff6b6b",
+   "tier": 3,
+   "tier_name": "Elite",
+   "description": "Legs straight and spread wide, body parallel to the floor.",
+   "steps": [
+    "Advanced tuck with one leg extended",
+    "Wide straddle with bent hips",
+    "Straight legs with a flat body"
+   ],
+   "exercises": [
+    "5 x 3-6 s straddle holds",
+    "Straddle planche negatives"
+   ],
+   "regressions": [
+    "One-leg-extended variations",
+    "Band-assisted straddle planche"
+   ],
+   "unit": "s",
+   "target": 8,
+   "note": "Straight-arm strength work loads the elbows, biceps tendons and wrists heavily. Warm up thoroughly and add volume slowly over weeks and months.",
+   "prereqs": [
+    "adv_tuck_planche"
+   ]
+  },
+  {
+   "id": "full_planche",
+   "name": "Full Planche",
+   "category": "push",
+   "category_name": "Pushing",
+   "category_color": "#ff6b6b",
+   "tier": 3,
+   "tier_name": "Elite",
+   "description": "The iconic skill: body horizontal, legs together, supported on straight arms.",
+   "steps": [
+    "Narrow the straddle gradually",
+    "Half-straddle holds",
+    "Legs together"
+   ],
+   "exercises": [
+    "5 x 2-5 s holds",
+    "Planche leans for volume"
+   ],
+   "regressions": [
+    "Narrower straddle planche",
+    "Band-assisted planche"
+   ],
+   "unit": "s",
+   "target": 5,
+   "note": "Straight-arm strength work loads the elbows, biceps tendons and wrists heavily. Warm up thoroughly and add volume slowly over weeks and months.",
+   "prereqs": [
+    "straddle_planche"
+   ]
+  },
+  {
+   "id": "wall_hspu",
+   "name": "Wall Handstand Push-Up",
+   "category": "push",
+   "category_name": "Pushing",
+   "category_color": "#ff6b6b",
+   "tier": 2,
+   "tier_name": "Advanced",
+   "description": "Vertical pressing against a wall.",
+   "steps": [
+    "Pike push-ups with feet elevated",
+    "Box-assisted wall HSPU",
+    "Full-depth wall HSPU"
+   ],
+   "exercises": [
+    "4 x 3-6 wall HSPU",
+    "3 x 3 negatives (4 s down)"
+   ],
+   "regressions": [
+    "Pike push-ups on a box",
+    "Negative-only wall HSPU"
+   ],
+   "unit": "reps",
+   "target": 5,
+   "note": "Use a mat, and learn how to bail safely out of a handstand before you train this.",
+   "prereqs": [
+    "pike_pushup",
+    "wall_handstand"
+   ]
+  },
+  {
+   "id": "free_hspu",
+   "name": "Freestanding Handstand Push-Up",
+   "category": "push",
+   "category_name": "Pushing",
+   "category_color": "#ff6b6b",
+   "tier": 3,
+   "tier_name": "Elite",
+   "description": "Handstand push-ups with no wall. Strength and balance combined.",
+   "steps": [
+    "Wall HSPU with fingertips-only balance",
+    "Short-range freestanding dips",
+    "Full-depth freestanding HSPU"
+   ],
+   "exercises": [
+    "5 x 1-3 reps",
+    "Freestanding handstand dips"
+   ],
+   "regressions": [
+    "Wall HSPU",
+    "Short-range handstand dips"
+   ],
+   "unit": "reps",
+   "target": 3,
+   "note": "",
+   "prereqs": [
+    "wall_hspu",
+    "free_handstand"
+   ]
+  },
+  {
+   "id": "inverted_row",
+   "name": "Inverted Row",
+   "category": "pull",
+   "category_name": "Pulling",
+   "category_color": "#4dabf7",
+   "tier": 0,
+   "tier_name": "Beginner",
+   "description": "Horizontal pulling under a bar or rings. The base of all pulling strength.",
+   "steps": [
+    "Bent-knee rows with a high bar",
+    "Straight-body rows",
+    "Feet elevated rows"
+   ],
+   "exercises": [
+    "3 x 8-12 inverted rows",
+    "2 x 20 s top-position hold"
+   ],
+   "regressions": [
+    "Bend the knees and walk the feet closer"
+   ],
+   "unit": "reps",
+   "target": 12,
+   "note": "",
+   "prereqs": []
+  },
+  {
+   "id": "chinup",
+   "name": "Chin-Up",
+   "category": "pull",
+   "category_name": "Pulling",
+   "category_color": "#4dabf7",
+   "tier": 0,
+   "tier_name": "Beginner",
+   "description": "Palms facing you. The biceps help a lot, so it's the usual first vertical pull.",
+   "steps": [
+    "Band-assisted chin-ups",
+    "Slow negatives (4-5 s)",
+    "Full chin-ups"
+   ],
+   "exercises": [
+    "5 x 2-4 negatives",
+    "3 x max-minus-2 chin-ups"
+   ],
+   "regressions": [
+    "Band-assisted chin-ups",
+    "Jumping negatives"
+   ],
+   "unit": "reps",
+   "target": 8,
+   "note": "",
+   "prereqs": [
+    "inverted_row",
+    "dead_hang"
+   ]
+  },
+  {
+   "id": "pullup",
+   "name": "Pull-Up",
+   "category": "pull",
+   "category_name": "Pulling",
+   "category_color": "#4dabf7",
+   "tier": 1,
+   "tier_name": "Intermediate",
+   "description": "Overhand grip, chin over the bar, no kipping. The cornerstone of nearly every advanced pulling skill.",
+   "steps": [
+    "Scapular pulls",
+    "Negatives (4-5 s)",
+    "Band-assisted pull-ups",
+    "Strict pull-ups"
+   ],
+   "exercises": [
+    "5 x 3-5 negatives",
+    "4 x 3-8 pull-ups"
+   ],
+   "regressions": [
+    "Band-assisted pull-ups",
+    "Inverted rows",
+    "Negatives"
+   ],
+   "unit": "reps",
+   "target": 10,
+   "note": "",
+   "prereqs": [
+    "inverted_row",
+    "dead_hang"
+   ]
+  },
+  {
+   "id": "wide_pullup",
+   "name": "Wide Pull-Up",
+   "category": "pull",
+   "category_name": "Pulling",
+   "category_color": "#4dabf7",
+   "tier": 1,
+   "tier_name": "Intermediate",
+   "description": "Wider grip, more lat emphasis, and a smaller range of motion that's harder at the top.",
+   "steps": [
+    "Shoulder-width pull-ups",
+    "Slightly wider than shoulders",
+    "Wide grip to the chest"
+   ],
+   "exercises": [
+    "4 x 4-8 wide pull-ups"
+   ],
+   "regressions": [
+    "Regular pull-ups"
+   ],
+   "unit": "reps",
+   "target": 8,
+   "note": "",
+   "prereqs": [
+    "pullup"
+   ]
+  },
+  {
+   "id": "archer_pullup",
+   "name": "Archer Pull-Up",
+   "category": "pull",
+   "category_name": "Pulling",
+   "category_color": "#4dabf7",
+   "tier": 2,
+   "tier_name": "Advanced",
+   "description": "Pull to one side while the opposite arm stays extended. Builds toward the one-arm pull-up.",
+   "steps": [
+    "Wide pull-ups",
+    "Typewriter holds side to side",
+    "Archer pull-ups"
+   ],
+   "exercises": [
+    "4 x 3-5 per side"
+   ],
+   "regressions": [
+    "Typewriter pull-ups",
+    "Band-assisted archers"
+   ],
+   "unit": "reps",
+   "target": 5,
+   "note": "",
+   "prereqs": [
+    "wide_pullup"
+   ]
+  },
+  {
+   "id": "one_arm_pullup",
+   "name": "One-Arm Pull-Up",
+   "category": "pull",
+   "category_name": "Pulling",
+   "category_color": "#4dabf7",
+   "tier": 3,
+   "tier_name": "Elite",
+   "description": "One of the rarest strength skills in calisthenics.",
+   "steps": [
+    "Archer pull-ups with a free hand lightly assisting",
+    "One-arm negatives",
+    "Assisted-wrist one-arm pull-up",
+    "Full one-arm pull-up"
+   ],
+   "exercises": [
+    "5 x 1-3 negatives (5-8 s)",
+    "Assisted one-arm pull-ups"
+   ],
+   "regressions": [
+    "Archer pull-ups",
+    "One-arm negatives"
+   ],
+   "unit": "reps",
+   "target": 1,
+   "note": "High elbow and biceps tendon stress. Don't rush.",
+   "prereqs": [
+    "archer_pullup"
+   ]
+  },
+  {
+   "id": "c2b_pullup",
+   "name": "Chest-to-Bar Pull-Up",
+   "category": "pull",
+   "category_name": "Pulling",
+   "category_color": "#4dabf7",
+   "tier": 2,
+   "tier_name": "Advanced",
+   "description": "Pulling high enough to touch your chest to the bar. A key stepping stone to the muscle-up.",
+   "steps": [
+    "Explosive pull-ups",
+    "Pull-ups to the sternum",
+    "Chest-to-bar with a hollow position"
+   ],
+   "exercises": [
+    "5 x 3-5 high pulls",
+    "3 x 3 explosive pull-ups"
+   ],
+   "regressions": [
+    "Explosive pull-ups",
+    "Band-assisted chest-to-bar"
+   ],
+   "unit": "reps",
+   "target": 5,
+   "note": "",
+   "prereqs": [
+    "pullup"
+   ]
+  },
+  {
+   "id": "bar_muscle_up",
+   "name": "Bar Muscle-Up",
+   "category": "pull",
+   "category_name": "Pulling",
+   "category_color": "#4dabf7",
+   "tier": 2,
+   "tier_name": "Advanced",
+   "description": "Pull over the bar into a dip support. Combines explosive pulling, the transition and pressing.",
+   "steps": [
+    "Chest-to-bar pull-ups",
+    "Low-bar transitions",
+    "Band-assisted muscle-up",
+    "Strict muscle-up"
+   ],
+   "exercises": [
+    "5 x 1-3 muscle-ups",
+    "Low-bar muscle-ups",
+    "Straight-bar dips"
+   ],
+   "regressions": [
+    "Low-bar muscle-ups",
+    "Band-assisted muscle-ups"
+   ],
+   "unit": "reps",
+   "target": 3,
+   "note": "A rushed transition can strain shoulders and elbows. Learn it slowly.",
+   "prereqs": [
+    "c2b_pullup",
+    "dip"
+   ]
+  },
+  {
+   "id": "ring_muscle_up",
+   "name": "Ring Muscle-Up",
+   "category": "pull",
+   "category_name": "Pulling",
+   "category_color": "#4dabf7",
+   "tier": 3,
+   "tier_name": "Elite",
+   "description": "The same movement on unstable rings, with a false grip and a more demanding transition.",
+   "steps": [
+    "False-grip hangs and rows",
+    "Low-ring transitions",
+    "Band-assisted ring muscle-up",
+    "Full ring muscle-up"
+   ],
+   "exercises": [
+    "5 x 1-3 ring muscle-ups",
+    "False-grip pull-ups"
+   ],
+   "regressions": [
+    "Low ring muscle-ups",
+    "Band-assisted ring muscle-ups"
+   ],
+   "unit": "reps",
+   "target": 3,
+   "note": "",
+   "prereqs": [
+    "bar_muscle_up",
+    "ring_support"
+   ]
+  },
+  {
+   "id": "skin_the_cat",
+   "name": "Skin the Cat",
+   "category": "pull",
+   "category_name": "Pulling",
+   "category_color": "#4dabf7",
+   "tier": 1,
+   "tier_name": "Intermediate",
+   "description": "Rotate through the bar from hang to an inverted hang. Builds shoulder mobility for the back lever.",
+   "steps": [
+    "Tuck knees to chest and rotate halfway",
+    "Rotate to a deep inverted hang",
+    "Return slowly"
+   ],
+   "exercises": [
+    "3 x 3-5 slow skin-the-cats"
+   ],
+   "regressions": [
+    "Partial rotations with feet on the floor"
+   ],
+   "unit": "reps",
+   "target": 5,
+   "note": "Go slow through the deep shoulder-extension position.",
+   "prereqs": [
+    "pullup",
+    "hollow_hold"
+   ]
+  },
+  {
+   "id": "tuck_back_lever",
+   "name": "Tuck Back Lever",
+   "category": "pull",
+   "category_name": "Pulling",
+   "category_color": "#4dabf7",
+   "tier": 2,
+   "tier_name": "Advanced",
+   "description": "Facing the floor with knees tucked, hips level with the shoulders.",
+   "steps": [
+    "Skin the cat with hold at inversion",
+    "Tuck hold with hips high",
+    "Hips and shoulders level"
+   ],
+   "exercises": [
+    "5 x 5-10 s tuck holds"
+   ],
+   "regressions": [
+    "Skin the cat holds",
+    "Band-assisted tuck back lever"
+   ],
+   "unit": "s",
+   "target": 10,
+   "note": "Straight-arm strength work loads the elbows, biceps tendons and wrists heavily. Warm up thoroughly and add volume slowly over weeks and months.",
+   "prereqs": [
+    "skin_the_cat"
+   ]
+  },
+  {
+   "id": "straddle_back_lever",
+   "name": "Straddle Back Lever",
+   "category": "pull",
+   "category_name": "Pulling",
+   "category_color": "#4dabf7",
+   "tier": 2,
+   "tier_name": "Advanced",
+   "description": "Legs spread and straight, body horizontal.",
+   "steps": [
+    "Advanced tuck",
+    "One leg extended",
+    "Straddle hold"
+   ],
+   "exercises": [
+    "5 x 5-8 s holds"
+   ],
+   "regressions": [
+    "Advanced tuck back lever"
+   ],
+   "unit": "s",
+   "target": 8,
+   "note": "Straight-arm strength work loads the elbows, biceps tendons and wrists heavily. Warm up thoroughly and add volume slowly over weeks and months.",
+   "prereqs": [
+    "tuck_back_lever"
+   ]
+  },
+  {
+   "id": "full_back_lever",
+   "name": "Full Back Lever",
+   "category": "pull",
+   "category_name": "Pulling",
+   "category_color": "#4dabf7",
+   "tier": 3,
+   "tier_name": "Elite",
+   "description": "A straight, horizontal body with legs together, facing the floor.",
+   "steps": [
+    "Narrow the straddle",
+    "Half-straddle",
+    "Full back lever"
+   ],
+   "exercises": [
+    "5 x 3-6 s holds",
+    "Back lever negatives"
+   ],
+   "regressions": [
+    "Narrower straddle back lever"
+   ],
+   "unit": "s",
+   "target": 5,
+   "note": "Straight-arm strength work loads the elbows, biceps tendons and wrists heavily. Warm up thoroughly and add volume slowly over weeks and months.",
+   "prereqs": [
+    "straddle_back_lever"
+   ]
+  },
+  {
+   "id": "tuck_front_lever",
+   "name": "Tuck Front Lever",
+   "category": "pull",
+   "category_name": "Pulling",
+   "category_color": "#4dabf7",
+   "tier": 2,
+   "tier_name": "Advanced",
+   "description": "Horizontal body facing up, knees tucked. A big step up in straight-arm pulling strength.",
+   "steps": [
+    "Hanging hollow body hold",
+    "Tuck hold with a flat back",
+    "Hips and shoulders level"
+   ],
+   "exercises": [
+    "5 x 5-10 s tuck holds",
+    "Inverted rows with a hollow body"
+   ],
+   "regressions": [
+    "Hanging tuck raises",
+    "Band-assisted tuck front lever"
+   ],
+   "unit": "s",
+   "target": 10,
+   "note": "Straight-arm strength work loads the elbows, biceps tendons and wrists heavily. Warm up thoroughly and add volume slowly over weeks and months.",
+   "prereqs": [
+    "pullup",
+    "hollow_hold"
+   ]
+  },
+  {
+   "id": "adv_tuck_front_lever",
+   "name": "Advanced Tuck Front Lever",
+   "category": "pull",
+   "category_name": "Pulling",
+   "category_color": "#4dabf7",
+   "tier": 2,
+   "tier_name": "Advanced",
+   "description": "Back flat, knees pulled in but hips extended.",
+   "steps": [
+    "Tuck front lever",
+    "Open the hip angle slowly",
+    "Flat-back tuck"
+   ],
+   "exercises": [
+    "5 x 5-8 s holds"
+   ],
+   "regressions": [
+    "Tuck front lever"
+   ],
+   "unit": "s",
+   "target": 8,
+   "note": "Straight-arm strength work loads the elbows, biceps tendons and wrists heavily. Warm up thoroughly and add volume slowly over weeks and months.",
+   "prereqs": [
+    "tuck_front_lever"
+   ]
+  },
+  {
+   "id": "straddle_front_lever",
+   "name": "Straddle Front Lever",
+   "category": "pull",
+   "category_name": "Pulling",
+   "category_color": "#4dabf7",
+   "tier": 3,
+   "tier_name": "Elite",
+   "description": "Legs straight and spread, body horizontal.",
+   "steps": [
+    "Advanced tuck with one leg extended",
+    "Wide straddle",
+    "Narrower straddle"
+   ],
+   "exercises": [
+    "5 x 3-6 s holds",
+    "Front lever negatives"
+   ],
+   "regressions": [
+    "One-leg extended front lever",
+    "Band-assisted straddle"
+   ],
+   "unit": "s",
+   "target": 6,
+   "note": "Straight-arm strength work loads the elbows, biceps tendons and wrists heavily. Warm up thoroughly and add volume slowly over weeks and months.",
+   "prereqs": [
+    "adv_tuck_front_lever"
+   ]
+  },
+  {
+   "id": "full_front_lever",
+   "name": "Full Front Lever",
+   "category": "pull",
+   "category_name": "Pulling",
+   "category_color": "#4dabf7",
+   "tier": 3,
+   "tier_name": "Elite",
+   "description": "Fully straight, horizontal body facing up, legs together.",
+   "steps": [
+    "Narrow the straddle",
+    "Half-straddle",
+    "Full lever"
+   ],
+   "exercises": [
+    "5 x 2-5 s holds",
+    "Front lever raises"
+   ],
+   "regressions": [
+    "Narrower straddle front lever"
+   ],
+   "unit": "s",
+   "target": 5,
+   "note": "Straight-arm strength work loads the elbows, biceps tendons and wrists heavily. Warm up thoroughly and add volume slowly over weeks and months.",
+   "prereqs": [
+    "straddle_front_lever"
+   ]
+  },
+  {
+   "id": "l_sit_pullup",
+   "name": "L-Sit Pull-Up",
+   "category": "pull",
+   "category_name": "Pulling",
+   "category_color": "#4dabf7",
+   "tier": 2,
+   "tier_name": "Advanced",
+   "description": "Pull-ups with legs held straight out in front. Strong pulling plus core compression.",
+   "steps": [
+    "Knee-tuck pull-ups",
+    "One-leg-extended pull-ups",
+    "Full L-sit pull-up"
+   ],
+   "exercises": [
+    "4 x 3-6 L-sit pull-ups"
+   ],
+   "regressions": [
+    "Tucked pull-ups"
+   ],
+   "unit": "reps",
+   "target": 6,
+   "note": "",
+   "prereqs": [
+    "pullup",
+    "l_sit"
+   ]
+  },
+  {
+   "id": "dead_hang",
+   "name": "Dead Hang",
+   "category": "static",
+   "category_name": "Static Holds",
+   "category_color": "#38d9a9",
+   "tier": 0,
+   "tier_name": "Beginner",
+   "description": "Hanging from a bar. Builds grip strength and shoulder tolerance for everything on the bar.",
+   "steps": [
+    "Hang for 10 s",
+    "Add time gradually",
+    "Use a thumbless grip for variety"
+   ],
+   "exercises": [
+    "3 x 20-30 s hangs"
+   ],
+   "regressions": [
+    "Feet-assisted hang"
+   ],
+   "unit": "s",
+   "target": 30,
+   "note": "",
+   "prereqs": []
+  },
+  {
+   "id": "support_hold",
+   "name": "Parallel Bar Support",
+   "category": "static",
+   "category_name": "Static Holds",
+   "category_color": "#38d9a9",
+   "tier": 0,
+   "tier_name": "Beginner",
+   "description": "Arms locked out on parallel bars with the shoulders pushed down. The start of dips and L-sits.",
+   "steps": [
+    "Hold at 10 s",
+    "Depress shoulders actively",
+    "Hold with legs lifted"
+   ],
+   "exercises": [
+    "4 x 20-30 s support holds"
+   ],
+   "regressions": [
+    "Feet-assisted support on a bench"
+   ],
+   "unit": "s",
+   "target": 30,
+   "note": "",
+   "prereqs": []
+  },
+  {
+   "id": "side_plank",
+   "name": "Side Plank",
+   "category": "static",
+   "category_name": "Static Holds",
+   "category_color": "#38d9a9",
+   "tier": 0,
+   "tier_name": "Beginner",
+   "description": "Lateral core stability. The base for flag skills.",
+   "steps": [
+    "Side plank on the knees",
+    "Full side plank",
+    "Add a top-leg lift"
+   ],
+   "exercises": [
+    "3 x 30-45 s per side"
+   ],
+   "regressions": [
+    "Knees-down side plank"
+   ],
+   "unit": "s",
+   "target": 45,
+   "note": "",
+   "prereqs": []
+  },
+  {
+   "id": "active_hang",
+   "name": "Active Hang",
+   "category": "static",
+   "category_name": "Static Holds",
+   "category_color": "#38d9a9",
+   "tier": 1,
+   "tier_name": "Intermediate",
+   "description": "A hang with the shoulders pulled down and away from the ears. Primes the scapular strength used in levers and pull-ups.",
+   "steps": [
+    "Passive dead hang",
+    "Shrug shoulders away from the ears",
+    "Hold with a hollow body"
+   ],
+   "exercises": [
+    "4 x 15-30 s active hangs"
+   ],
+   "regressions": [
+    "Feet-assisted active hang"
+   ],
+   "unit": "s",
+   "target": 30,
+   "note": "",
+   "prereqs": [
+    "dead_hang"
+   ]
+  },
+  {
+   "id": "ring_support",
+   "name": "Ring Support Hold",
+   "category": "static",
+   "category_name": "Static Holds",
+   "category_color": "#38d9a9",
+   "tier": 1,
+   "tier_name": "Intermediate",
+   "description": "Support on unstable rings. Required for ring dips and muscle-ups.",
+   "steps": [
+    "Rings at hip height",
+    "Straight arms with locked elbows",
+    "Turn hands outward (RTO)"
+   ],
+   "exercises": [
+    "4 x 15-30 s ring support holds"
+   ],
+   "regressions": [
+    "Parallel-bar support"
+   ],
+   "unit": "s",
+   "target": 30,
+   "note": "",
+   "prereqs": [
+    "support_hold"
+   ]
+  },
+  {
+   "id": "clutch_flag",
+   "name": "Clutch Flag",
+   "category": "static",
+   "category_name": "Static Holds",
+   "category_color": "#38d9a9",
+   "tier": 2,
+   "tier_name": "Advanced",
+   "description": "A beginner flag variation: hold a vertical pole with a 'clutch' while the legs lean out sideways.",
+   "steps": [
+    "Side plank",
+    "Hold a pole in a clutch grip",
+    "Hips lift and body stays horizontal"
+   ],
+   "exercises": [
+    "5 x 3-8 s per side"
+   ],
+   "regressions": [
+    "Pole side-plank leans"
+   ],
+   "unit": "s",
+   "target": 10,
+   "note": "Take care of the spine and ribs. Use a stable pole and a spotter or mat.",
+   "prereqs": [
+    "side_plank",
+    "pullup"
+   ]
+  },
+  {
+   "id": "straddle_flag",
+   "name": "Straddle Human Flag",
+   "category": "static",
+   "category_name": "Static Holds",
+   "category_color": "#38d9a9",
+   "tier": 3,
+   "tier_name": "Elite",
+   "description": "Body fully horizontal with legs split, both hands gripping the pole.",
+   "steps": [
+    "Clutch flag",
+    "One leg straight",
+    "Both legs in a straddle"
+   ],
+   "exercises": [
+    "5 x 3-6 s per side"
+   ],
+   "regressions": [
+    "Clutch flag"
+   ],
+   "unit": "s",
+   "target": 6,
+   "note": "Heavy shoulder, oblique and spine loading. Take it slowly.",
+   "prereqs": [
+    "clutch_flag"
+   ]
+  },
+  {
+   "id": "human_flag",
+   "name": "Human Flag",
+   "category": "static",
+   "category_name": "Static Holds",
+   "category_color": "#38d9a9",
+   "tier": 3,
+   "tier_name": "Elite",
+   "description": "Body horizontal and legs together, held off a vertical pole by the arms.",
+   "steps": [
+    "Straddle flag",
+    "Bring legs closer",
+    "Full flag"
+   ],
+   "exercises": [
+    "5 x 2-5 s per side",
+    "Flag negatives"
+   ],
+   "regressions": [
+    "Straddle flag"
+   ],
+   "unit": "s",
+   "target": 5,
+   "note": "Heavy shoulder, oblique and spine loading. Take it slowly.",
+   "prereqs": [
+    "straddle_flag"
+   ]
+  },
+  {
+   "id": "plank",
+   "name": "Plank",
+   "category": "core",
+   "category_name": "Core",
+   "category_color": "#ffd43b",
+   "tier": 0,
+   "tier_name": "Beginner",
+   "description": "The foundation of trunk stiffness. Squeeze glutes, ribs down, neutral spine.",
+   "steps": [
+    "Hold 20 s",
+    "Build to 60 s",
+    "Add a long-lever plank"
+   ],
+   "exercises": [
+    "3 x 30-60 s planks"
+   ],
+   "regressions": [
+    "Knee plank"
+   ],
+   "unit": "s",
+   "target": 60,
+   "note": "",
+   "prereqs": []
+  },
+  {
+   "id": "hollow_hold",
+   "name": "Hollow Body Hold",
+   "category": "core",
+   "category_name": "Core",
+   "category_color": "#ffd43b",
+   "tier": 0,
+   "tier_name": "Beginner",
+   "description": "Lower back pressed to the floor, legs and shoulders lifted. The shape behind levers, handstands and muscle-ups.",
+   "steps": [
+    "Tuck hollow hold",
+    "One leg extended",
+    "Full hollow hold"
+   ],
+   "exercises": [
+    "4 x 20-30 s hollow holds"
+   ],
+   "regressions": [
+    "Tuck hollow hold",
+    "Dead bugs"
+   ],
+   "unit": "s",
+   "target": 30,
+   "note": "",
+   "prereqs": [
+    "plank"
+   ]
+  },
+  {
+   "id": "lying_leg_raise",
+   "name": "Lying Leg Raise",
+   "category": "core",
+   "category_name": "Core",
+   "category_color": "#ffd43b",
+   "tier": 0,
+   "tier_name": "Beginner",
+   "description": "Raise straight legs from the floor without arching the back.",
+   "steps": [
+    "Bent-knee raises",
+    "Straight-leg raises",
+    "Slow negatives"
+   ],
+   "exercises": [
+    "3 x 8-12 leg raises"
+   ],
+   "regressions": [
+    "Knee raises"
+   ],
+   "unit": "reps",
+   "target": 12,
+   "note": "",
+   "prereqs": []
+  },
+  {
+   "id": "hanging_knee_raise",
+   "name": "Hanging Knee Raise",
+   "category": "core",
+   "category_name": "Core",
+   "category_color": "#ffd43b",
+   "tier": 1,
+   "tier_name": "Intermediate",
+   "description": "Raise the knees to the chest from a hang, curling the pelvis up.",
+   "steps": [
+    "Hang with posterior tilt",
+    "Knee raises",
+    "Raise the knees above the hips"
+   ],
+   "exercises": [
+    "3 x 8-12 knee raises"
+   ],
+   "regressions": [
+    "Lying knee raises"
+   ],
+   "unit": "reps",
+   "target": 12,
+   "note": "",
+   "prereqs": [
+    "dead_hang",
+    "lying_leg_raise"
+   ]
+  },
+  {
+   "id": "hanging_leg_raise",
+   "name": "Hanging Leg Raise",
+   "category": "core",
+   "category_name": "Core",
+   "category_color": "#ffd43b",
+   "tier": 1,
+   "tier_name": "Intermediate",
+   "description": "Straight legs to horizontal or higher while hanging.",
+   "steps": [
+    "Bent-knee raises",
+    "One-leg straight",
+    "Both legs straight to 90°"
+   ],
+   "exercises": [
+    "3 x 6-10 leg raises"
+   ],
+   "regressions": [
+    "Hanging knee raises"
+   ],
+   "unit": "reps",
+   "target": 10,
+   "note": "",
+   "prereqs": [
+    "hanging_knee_raise"
+   ]
+  },
+  {
+   "id": "ab_wheel",
+   "name": "Ab Wheel Rollout",
+   "category": "core",
+   "category_name": "Core",
+   "category_color": "#ffd43b",
+   "tier": 1,
+   "tier_name": "Intermediate",
+   "description": "A long-lever core exercise from the knees, then from the feet.",
+   "steps": [
+    "Short-range rollouts",
+    "Full rollouts from the knees",
+    "Standing rollouts"
+   ],
+   "exercises": [
+    "3 x 6-10 rollouts"
+   ],
+   "regressions": [
+    "Wall rollouts",
+    "Short-range rollouts"
+   ],
+   "unit": "reps",
+   "target": 8,
+   "note": "",
+   "prereqs": [
+    "hollow_hold"
+   ]
+  },
+  {
+   "id": "tuck_l_sit",
+   "name": "Tuck L-Sit",
+   "category": "core",
+   "category_name": "Core",
+   "category_color": "#ffd43b",
+   "tier": 1,
+   "tier_name": "Intermediate",
+   "description": "Support hold with knees tucked and lifted off the floor.",
+   "steps": [
+    "Support with a hollow body",
+    "Foot-lift holds",
+    "Tuck hold"
+   ],
+   "exercises": [
+    "5 x 10-20 s tuck L-sits"
+   ],
+   "regressions": [
+    "Foot-supported holds",
+    "Seated pike lifts"
+   ],
+   "unit": "s",
+   "target": 20,
+   "note": "",
+   "prereqs": [
+    "support_hold",
+    "hollow_hold"
+   ]
+  },
+  {
+   "id": "l_sit",
+   "name": "L-Sit",
+   "category": "core",
+   "category_name": "Core",
+   "category_color": "#ffd43b",
+   "tier": 2,
+   "tier_name": "Advanced",
+   "description": "Legs straight out in front while supported on the hands. A foundational compression skill.",
+   "steps": [
+    "Tuck L-sit",
+    "One leg extended",
+    "Both legs straight"
+   ],
+   "exercises": [
+    "5 x 8-15 s L-sits",
+    "Seated compression lifts"
+   ],
+   "regressions": [
+    "Tuck L-sit",
+    "One-leg L-sit"
+   ],
+   "unit": "s",
+   "target": 15,
+   "note": "",
+   "prereqs": [
+    "tuck_l_sit"
+   ]
+  },
+  {
+   "id": "toes_to_bar",
+   "name": "Toes to Bar",
+   "category": "core",
+   "category_name": "Core",
+   "category_color": "#ffd43b",
+   "tier": 2,
+   "tier_name": "Advanced",
+   "description": "Raise straight legs until the toes touch the bar.",
+   "steps": [
+    "Hanging leg raise to horizontal",
+    "Raise above horizontal",
+    "Toes touching the bar"
+   ],
+   "exercises": [
+    "4 x 3-6 reps"
+   ],
+   "regressions": [
+    "Hanging leg raises",
+    "Knees to elbows"
+   ],
+   "unit": "reps",
+   "target": 5,
+   "note": "",
+   "prereqs": [
+    "hanging_leg_raise"
+   ]
+  },
+  {
+   "id": "dragon_flag",
+   "name": "Dragon Flag",
+   "category": "core",
+   "category_name": "Core",
+   "category_color": "#ffd43b",
+   "tier": 3,
+   "tier_name": "Elite",
+   "description": "Lie on a bench, pivot from the shoulders and lower the whole body as one straight line. Brutal anterior-chain strength.",
+   "steps": [
+    "Tucked dragon flag",
+    "One leg extended",
+    "Slow negatives",
+    "Full dragon flag"
+   ],
+   "exercises": [
+    "4 x 2-4 slow negatives"
+   ],
+   "regressions": [
+    "Tucked dragon flag",
+    "One-leg dragon flag"
+   ],
+   "unit": "reps",
+   "target": 3,
+   "note": "Keep the weight on the upper back, not the neck.",
+   "prereqs": [
+    "hanging_leg_raise",
+    "hollow_hold"
+   ]
+  },
+  {
+   "id": "manna",
+   "name": "Manna",
+   "category": "core",
+   "category_name": "Core",
+   "category_color": "#ffd43b",
+   "tier": 3,
+   "tier_name": "Elite",
+   "description": "A press-out of an L-sit in which the hips rise above the hands and the legs extend horizontally. Extreme compression and wrist strength.",
+   "steps": [
+    "Pike compression work",
+    "L-sit with hips lifting",
+    "Hold hips above the hands"
+   ],
+   "exercises": [
+    "5 x 3-6 s holds"
+   ],
+   "regressions": [
+    "L-sit shifts",
+    "Pike compression"
+   ],
+   "unit": "s",
+   "target": 5,
+   "note": "Very high wrist and shoulder demand.",
+   "prereqs": [
+    "l_sit"
+   ]
+  },
+  {
+   "id": "crow_pose",
+   "name": "Crow Pose",
+   "category": "balance",
+   "category_name": "Balance",
+   "category_color": "#b197fc",
+   "tier": 1,
+   "tier_name": "Intermediate",
+   "description": "Balance on your hands with knees resting on the backs of the upper arms. A first hand-balancing skill.",
+   "steps": [
+    "Weight shifts in a squat",
+    "Lift one foot",
+    "Both feet off"
+   ],
+   "exercises": [
+    "5 x 10-20 s crow holds"
+   ],
+   "regressions": [
+    "Foot-assisted lift-offs"
+   ],
+   "unit": "s",
+   "target": 20,
+   "note": "",
+   "prereqs": [
+    "plank"
+   ]
+  },
+  {
+   "id": "wall_handstand",
+   "name": "Wall Handstand",
+   "category": "balance",
+   "category_name": "Balance",
+   "category_color": "#b197fc",
+   "tier": 1,
+   "tier_name": "Intermediate",
+   "description": "Chest-to-wall handstand. Teaches the straight line and shoulder stacking.",
+   "steps": [
+    "Plank walk-ups",
+    "Wall walk-ups",
+    "Chest-to-wall holds"
+   ],
+   "exercises": [
+    "5 x 20-40 s wall handstands"
+   ],
+   "regressions": [
+    "Pike holds on a box",
+    "Wall walk-ups"
+   ],
+   "unit": "s",
+   "target": 30,
+   "note": "Learn how to bail (cartwheel out), and mind your wrists.",
+   "prereqs": [
+    "plank",
+    "hollow_hold"
+   ]
+  },
+  {
+   "id": "free_handstand",
+   "name": "Freestanding Handstand",
+   "category": "balance",
+   "category_name": "Balance",
+   "category_color": "#b197fc",
+   "tier": 2,
+   "tier_name": "Advanced",
+   "description": "Hold an unsupported handstand for at least 30 s using the finger-tip and palm-push balance reactions.",
+   "steps": [
+    "Kick-ups",
+    "Back-to-wall exits",
+    "Free holds in short bursts"
+   ],
+   "exercises": [
+    "10 x 10-20 s kick-up attempts",
+    "Heel pulls off the wall"
+   ],
+   "regressions": [
+    "Wall-assisted kick-ups",
+    "Heel pulls"
+   ],
+   "unit": "s",
+   "target": 30,
+   "note": "",
+   "prereqs": [
+    "wall_handstand",
+    "crow_pose"
+   ]
+  },
+  {
+   "id": "press_handstand",
+   "name": "Press to Handstand",
+   "category": "balance",
+   "category_name": "Balance",
+   "category_color": "#b197fc",
+   "tier": 3,
+   "tier_name": "Elite",
+   "description": "Raise from a straddle stand into a handstand with straight arms and no jump. Needs strength and compression.",
+   "steps": [
+    "Pike compression work",
+    "Frog stand press",
+    "Straddle press"
+   ],
+   "exercises": [
+    "5 x 2-3 presses",
+    "L-sit shoulder shrugs"
+   ],
+   "regressions": [
+    "Frog stand press",
+    "Wall-assisted press"
+   ],
+   "unit": "reps",
+   "target": 3,
+   "note": "",
+   "prereqs": [
+    "free_handstand",
+    "l_sit"
+   ]
+  },
+  {
+   "id": "one_arm_handstand",
+   "name": "One-Arm Handstand",
+   "category": "balance",
+   "category_name": "Balance",
+   "category_color": "#b197fc",
+   "tier": 3,
+   "tier_name": "Elite",
+   "description": "Hold a handstand on a single arm. Extreme balance control and stability.",
+   "steps": [
+    "Handstand weight shifts",
+    "One hand on a wall",
+    "One-arm holds"
+   ],
+   "exercises": [
+    "5 x 5-10 s attempts"
+   ],
+   "regressions": [
+    "Two-finger handstands",
+    "Wall-assisted one-arm balances"
+   ],
+   "unit": "s",
+   "target": 5,
+   "note": "Fall safely and keep the wrists conditioned.",
+   "prereqs": [
+    "free_handstand"
+   ]
+  },
+  {
+   "id": "adv_tuck_back_lever",
+   "name": "Advanced Tuck Back Lever",
+   "category": "pull",
+   "category_name": "Pulling",
+   "category_color": "#4dabf7",
+   "tier": 2,
+   "tier_name": "Advanced",
+   "description": "Tighter tuck or flatter back. Bridge toward the straddle back lever.",
+   "steps": [
+    "Hold tighter tuck",
+    "Flatten the back",
+    "Hold for max quality"
+   ],
+   "exercises": [
+    "5 x 5-8 s holds"
+   ],
+   "regressions": [
+    "Tuck back lever"
+   ],
+   "unit": "s",
+   "target": 8,
+   "note": "Straight-arm strength work loads the elbows, biceps tendons and wrists heavily. Warm up thoroughly and add volume slowly over weeks and months.",
+   "prereqs": [
+    "tuck_back_lever"
+   ]
+  },
+  {
+   "id": "one_leg_back_lever",
+   "name": "One-Leg Back Lever",
+   "category": "pull",
+   "category_name": "Pulling",
+   "category_color": "#4dabf7",
+   "tier": 3,
+   "tier_name": "Elite",
+   "description": "One leg extended, the other tucked. Excellent transitional strength.",
+   "steps": [
+    "Hold with one leg extended",
+    "Work longer holds",
+    "Transition to full"
+   ],
+   "exercises": [
+    "4 x 4-6 s holds"
+   ],
+   "regressions": [
+    "Straddle back lever"
+   ],
+   "unit": "s",
+   "target": 6,
+   "note": "Straight-arm strength work loads the elbows, biceps tendons and wrists heavily. Warm up thoroughly and add volume slowly over weeks and months.",
+   "prereqs": [
+    "straddle_back_lever"
+   ]
+  },
+  {
+   "id": "one_arm_back_lever",
+   "name": "One-Arm Back Lever",
+   "category": "pull",
+   "category_name": "Pulling",
+   "category_color": "#4dabf7",
+   "tier": 3,
+   "tier_name": "Elite",
+   "description": "Elite straight-arm pulling. Requires tremendous shoulder stability.",
+   "steps": [
+    "Short one-arm holds",
+    "Negative one-arm",
+    "Build with assisted holds"
+   ],
+   "exercises": [
+    "3 x 2-4 s holds"
+   ],
+   "regressions": [
+    "Full back lever"
+   ],
+   "unit": "s",
+   "target": 3,
+   "note": "Straight-arm strength work loads the elbows, biceps tendons and wrists heavily. Warm up thoroughly and add volume slowly over weeks and months.",
+   "prereqs": [
+    "full_back_lever"
+   ]
+  },
+  {
+   "id": "one_leg_front_lever",
+   "name": "One-Leg Front Lever",
+   "category": "pull",
+   "category_name": "Pulling",
+   "category_color": "#4dabf7",
+   "tier": 3,
+   "tier_name": "Elite",
+   "description": "One leg extended, other tucked. Key step between straddle and full front lever.",
+   "steps": [
+    "Hold one leg extended",
+    "Increase hold time",
+    "Work both sides"
+   ],
+   "exercises": [
+    "4 x 4-6 s holds"
+   ],
+   "regressions": [
+    "Straddle front lever"
+   ],
+   "unit": "s",
+   "target": 6,
+   "note": "Straight-arm strength work loads the elbows, biceps tendons and wrists heavily. Warm up thoroughly and add volume slowly over weeks and months.",
+   "prereqs": [
+    "straddle_front_lever"
+   ]
+  },
+  {
+   "id": "victorian",
+   "name": "Victorian",
+   "category": "pull",
+   "category_name": "Pulling",
+   "category_color": "#4dabf7",
+   "tier": 3,
+   "tier_name": "Elite",
+   "description": "Hanging inverted with straight body and legs raised to vertical. Brutally difficult.",
+   "steps": [
+    "Front lever to inverted tuck",
+    "Slow negatives",
+    "Short holds"
+   ],
+   "exercises": [
+    "3 x 3-5 s holds"
+   ],
+   "regressions": [
+    "Full front lever"
+   ],
+   "unit": "s",
+   "target": 3,
+   "note": "Straight-arm strength work loads the elbows, biceps tendons and wrists heavily. Warm up thoroughly and add volume slowly over weeks and months.",
+   "prereqs": [
+    "full_front_lever"
+   ]
+  },
+  {
+   "id": "wide_grip_pushup",
+   "name": "Wide-Grip Push-Up",
+   "category": "push",
+   "category_name": "Pushing",
+   "category_color": "#ff6b6b",
+   "tier": 1,
+   "tier_name": "Intermediate",
+   "description": "Hands wider than shoulder width. Emphasizes chest activation.",
+   "steps": [
+    "Wide-grip push-ups",
+    "Control eccentric",
+    "Build volume"
+   ],
+   "exercises": [
+    "3 x 8-12 wide-grip push-ups"
+   ],
+   "regressions": [
+    "Push-Up"
+   ],
+   "unit": "reps",
+   "target": 15,
+   "note": "",
+   "prereqs": [
+    "pushup"
+   ]
+  },
+  {
+   "id": "spartan_pushup",
+   "name": "Spartan Push-Up",
+   "category": "push",
+   "category_name": "Pushing",
+   "category_color": "#ff6b6b",
+   "tier": 2,
+   "tier_name": "Advanced",
+   "description": "Alternating wide and close grip in each rep. Great for strength-endurance.",
+   "steps": [
+    "Practice one side",
+    "Flow between grips",
+    "Full spartan push-ups"
+   ],
+   "exercises": [
+    "3 x 6-10 spartan push-ups"
+   ],
+   "regressions": [
+    "Diamond push-up"
+   ],
+   "unit": "reps",
+   "target": 10,
+   "note": "",
+   "prereqs": [
+    "diamond_pushup",
+    "decline_pushup"
+   ]
+  },
+  {
+   "id": "typewriter_pushup",
+   "name": "Typewriter Push-Up",
+   "category": "push",
+   "category_name": "Pushing",
+   "category_color": "#ff6b6b",
+   "tier": 2,
+   "tier_name": "Advanced",
+   "description": "Shift laterally across a wide archer position. Builds horizontal strength and control.",
+   "steps": [
+    "Partial shifts",
+    "Full typewriter",
+    "Longer sets"
+   ],
+   "exercises": [
+    "3 x 4-8 typewriter push-ups"
+   ],
+   "regressions": [
+    "Archer push-up"
+   ],
+   "unit": "reps",
+   "target": 8,
+   "note": "",
+   "prereqs": [
+    "archer_pushup"
+   ]
+  },
+  {
+   "id": "aztec_pushup",
+   "name": "Aztec Push-Up",
+   "category": "push",
+   "category_name": "Pushing",
+   "category_color": "#ff6b6b",
+   "tier": 3,
+   "tier_name": "Elite",
+   "description": "Explosive push-up that drives hips back then over the head. Advanced power movement.",
+   "steps": [
+    "Pike press practice",
+    "Smaller hops",
+    "Controlled landings"
+   ],
+   "exercises": [
+    "4 x 3-5 aztec push-ups"
+   ],
+   "regressions": [
+    "Decline push-up"
+   ],
+   "unit": "reps",
+   "target": 5,
+   "note": "",
+   "prereqs": [
+    "decline_pushup"
+   ]
+  },
+  {
+   "id": "scapular_pullups",
+   "name": "Scapular Pull-Ups",
+   "category": "pull",
+   "category_name": "Pulling",
+   "category_color": "#4dabf7",
+   "tier": 0,
+   "tier_name": "Beginner",
+   "description": "Hang and depress/retract the shoulders. Essential for shoulder health and straight-arm strength.",
+   "steps": [
+    "Dead hangs with scap pulls",
+    "High-rep sets",
+    "Quality over quantity"
+   ],
+   "exercises": [
+    "4 x 8-12 scapular pull-ups"
+   ],
+   "regressions": [],
+   "unit": "reps",
+   "target": 30,
+   "note": "",
+   "prereqs": []
+  },
+  {
+   "id": "typewriter_pullup",
+   "name": "Typewriter Pull-Up",
+   "category": "pull",
+   "category_name": "Pulling",
+   "category_color": "#4dabf7",
+   "tier": 2,
+   "tier_name": "Advanced",
+   "description": "Move laterally while holding the contracted position. Builds unilateral strength.",
+   "steps": [
+    "Partial typewriters",
+    "Full range shifts",
+    "Higher volume"
+   ],
+   "exercises": [
+    "3 x 4-6 typewriter pull-ups"
+   ],
+   "regressions": [
+    "Archer pull-up"
+   ],
+   "unit": "reps",
+   "target": 8,
+   "note": "",
+   "prereqs": [
+    "archer_pullup"
+   ]
+  },
+  {
+   "id": "clutch_flag_adv",
+   "name": "Clutch Flag Advanced",
+   "category": "static",
+   "category_name": "Static Holds",
+   "category_color": "#38d9a9",
+   "tier": 3,
+   "tier_name": "Elite",
+   "description": "Extreme side lever variation. Requires elite core and shoulder strength.",
+   "steps": [
+    "Short holds",
+    "Tuck clutch flag",
+    "Build time slowly"
+   ],
+   "exercises": [
+    "3 x 2-4 s holds"
+   ],
+   "regressions": [
+    "Human flag"
+   ],
+   "unit": "s",
+   "target": 3,
+   "note": "Straight-arm strength work loads the elbows, biceps tendons and wrists heavily. Warm up thoroughly and add volume slowly over weeks and months.",
+   "prereqs": [
+    "human_flag"
+   ]
+  },
+  {
+   "id": "hollow_body_press",
+   "name": "Hollow Body Press Hold",
+   "category": "core",
+   "category_name": "Core",
+   "category_color": "#ffd43b",
+   "tier": 0,
+   "tier_name": "Beginner",
+   "description": "Press the hands into the floor while maintaining hollow body tension. Great for planche progression.",
+   "steps": [
+    "Short presses",
+    "Longer holds",
+    "Controlled breathing"
+   ],
+   "exercises": [
+    "5 x 10-20 s presses"
+   ],
+   "regressions": [
+    "Hollow hold"
+   ],
+   "unit": "s",
+   "target": 30,
+   "note": "",
+   "prereqs": [
+    "hollow_hold"
+   ]
+  },
+  {
+   "id": "v_up",
+   "name": "V-Up",
+   "category": "core",
+   "category_name": "Core",
+   "category_color": "#ffd43b",
+   "tier": 1,
+   "tier_name": "Intermediate",
+   "description": "Simultaneous torso and leg raise forming a 'V'. Excellent dynamic core strength.",
+   "steps": [
+    "Bent-knee V-ups",
+    "Straight legs",
+    "Controlled descents"
+   ],
+   "exercises": [
+    "4 x 6-10 V-ups"
+   ],
+   "regressions": [
+    "Hollow hold"
+   ],
+   "unit": "reps",
+   "target": 15,
+   "note": "",
+   "prereqs": [
+    "hollow_hold"
+   ]
+  },
+  {
+   "id": "dragon_flag",
+   "name": "Dragon Flag",
+   "category": "core",
+   "category_name": "Core",
+   "category_color": "#ffd43b",
+   "tier": 2,
+   "tier_name": "Advanced",
+   "description": "Bruce Lee's classic. Lower the body under control keeping a straight line.",
+   "steps": [
+    "Bent knees",
+    "Negative dragon flags",
+    "Full dragon flags"
+   ],
+   "exercises": [
+    "4 x 3-6 negatives/holds"
+   ],
+   "regressions": [
+    "Hollow body press hold"
+   ],
+   "unit": "s",
+   "target": 10,
+   "note": "",
+   "prereqs": [
+    "hollow_body_press"
+   ]
+  },
+  {
+   "id": "squat",
+   "name": "Bodyweight Squat",
+   "category": "legs",
+   "category_name": "Legs",
+   "category_color": "#ff922b",
+   "tier": 0,
+   "tier_name": "Beginner",
+   "description": "Squat to parallel or below with the heels down and the knees tracking the toes.",
+   "steps": [
+    "Box squats",
+    "Full-depth squats",
+    "Pause squats"
+   ],
+   "exercises": [
+    "3 x 10-20 squats"
+   ],
+   "regressions": [
+    "Box squats"
+   ],
+   "unit": "reps",
+   "target": 25,
+   "note": "",
+   "prereqs": []
+  },
+  {
+   "id": "glute_bridge",
+   "name": "Glute Bridge",
+   "category": "legs",
+   "category_name": "Legs",
+   "category_color": "#ff922b",
+   "tier": 0,
+   "tier_name": "Beginner",
+   "description": "Lie on your back and lift the hips by driving through the heels.",
+   "steps": [
+    "Two-leg bridges",
+    "Pause at the top",
+    "Single-leg bridges"
+   ],
+   "exercises": [
+    "3 x 12-20 bridges"
+   ],
+   "regressions": [],
+   "unit": "reps",
+   "target": 20,
+   "note": "",
+   "prereqs": []
+  },
+  {
+   "id": "split_squat",
+   "name": "Split Squat",
+   "category": "legs",
+   "category_name": "Legs",
+   "category_color": "#ff922b",
+   "tier": 0,
+   "tier_name": "Beginner",
+   "description": "Stationary lunge, one leg forward. Builds single-leg strength and balance.",
+   "steps": [
+    "Bodyweight split squat",
+    "Slow tempo",
+    "Deeper range"
+   ],
+   "exercises": [
+    "3 x 8-12 per side"
+   ],
+   "regressions": [
+    "Supported split squat (hold a post)"
+   ],
+   "unit": "reps",
+   "target": 12,
+   "note": "",
+   "prereqs": [
+    "squat"
+   ]
+  },
+  {
+   "id": "bulgarian",
+   "name": "Bulgarian Split Squat",
+   "category": "legs",
+   "category_name": "Legs",
+   "category_color": "#ff922b",
+   "tier": 1,
+   "tier_name": "Intermediate",
+   "description": "Rear foot elevated. A challenging single-leg squat pattern.",
+   "steps": [
+    "Low-elevation rear foot",
+    "Bench height",
+    "Slow eccentrics"
+   ],
+   "exercises": [
+    "3 x 6-10 per side"
+   ],
+   "regressions": [
+    "Split squats"
+   ],
+   "unit": "reps",
+   "target": 10,
+   "note": "",
+   "prereqs": [
+    "split_squat"
+   ]
+  },
+  {
+   "id": "nordic_curl",
+   "name": "Nordic Hamstring Curl",
+   "category": "legs",
+   "category_name": "Legs",
+   "category_color": "#ff922b",
+   "tier": 2,
+   "tier_name": "Advanced",
+   "description": "Kneeling, lower your body forward with the feet anchored. A brutal eccentric hamstring exercise.",
+   "steps": [
+    "Band-assisted Nordics",
+    "Slow negatives",
+    "Full range with a push-up assist"
+   ],
+   "exercises": [
+    "3 x 3-6 slow negatives"
+   ],
+   "regressions": [
+    "Band-assisted Nordics",
+    "Hamstring walkouts"
+   ],
+   "unit": "reps",
+   "target": 5,
+   "note": "Hamstrings may cramp; start with low volume.",
+   "prereqs": [
+    "glute_bridge",
+    "squat"
+   ]
+  },
+  {
+   "id": "shrimp_squat",
+   "name": "Shrimp Squat",
+   "category": "legs",
+   "category_name": "Legs",
+   "category_color": "#ff922b",
+   "tier": 2,
+   "tier_name": "Advanced",
+   "description": "One-leg squat with the rear foot held behind. Knee-dominant and balance-intensive.",
+   "steps": [
+    "Assisted shrimp with a hand support",
+    "Elevated shrimp to a box",
+    "Full-range shrimp"
+   ],
+   "exercises": [
+    "3 x 3-6 per side"
+   ],
+   "regressions": [
+    "Assisted shrimp squats",
+    "Elevated shrimp squats"
+   ],
+   "unit": "reps",
+   "target": 5,
+   "note": "",
+   "prereqs": [
+    "bulgarian"
+   ]
+  },
+  {
+   "id": "pistol_squat",
+   "name": "Pistol Squat",
+   "category": "legs",
+   "category_name": "Legs",
+   "category_color": "#ff922b",
+   "tier": 2,
+   "tier_name": "Advanced",
+   "description": "Full-depth single-leg squat with the other leg extended forward.",
+   "steps": [
+    "Box pistol squats",
+    "Assisted pistols (hand on a post)",
+    "Counterbalanced pistol",
+    "Full pistol"
+   ],
+   "exercises": [
+    "3 x 3-6 per side",
+    "Slow eccentrics"
+   ],
+   "regressions": [
+    "Box pistols",
+    "Counterweight pistols"
+   ],
+   "unit": "reps",
+   "target": 5,
+   "note": "",
+   "prereqs": [
+    "bulgarian"
+   ]
+  },
+  {
+   "id": "dragon_pistol",
+   "name": "Dragon Pistol Squat",
+   "category": "legs",
+   "category_name": "Legs",
+   "category_color": "#ff922b",
+   "tier": 3,
+   "tier_name": "Elite",
+   "description": "Single-leg squat with the free leg threaded behind the body. Extreme mobility and strength.",
+   "steps": [
+    "Pistol with long pause",
+    "Deep rear-leg crossover",
+    "Full dragon pistol"
+   ],
+   "exercises": [
+    "3 x 2-4 per side"
+   ],
+   "regressions": [
+    "Pistol squat variations"
+   ],
+   "unit": "reps",
+   "target": 3,
+   "note": "",
+   "prereqs": [
+    "pistol_squat"
+   ]
+  }
+ ],
+ "workouts": [
+  {
+   "id": 3,
+   "name": "Legs & Core",
+   "description": "Lower body and trunk.",
+   "style": "endurance",
+   "entries": [
+    {
+     "exercise_id": "squat",
+     "name": "Bodyweight Squat",
+     "kind": "reps",
+     "sets": 4,
+     "reps": 15,
+     "hold_sec": 0,
+     "rest_sets": 45,
+     "rest_after": 60,
+     "note": ""
+    },
+    {
+     "exercise_id": "bulgarian",
+     "name": "Bulgarian Split Squat",
+     "kind": "reps",
+     "sets": 3,
+     "reps": 8,
+     "hold_sec": 0,
+     "rest_sets": 45,
+     "rest_after": 60,
+     "note": ""
+    },
+    {
+     "exercise_id": "glute_bridge",
+     "name": "Glute Bridge",
+     "kind": "reps",
+     "sets": 3,
+     "reps": 15,
+     "hold_sec": 0,
+     "rest_sets": 45,
+     "rest_after": 60,
+     "note": ""
+    },
+    {
+     "exercise_id": "calf_raise",
+     "name": "Calf Raise",
+     "kind": "reps",
+     "sets": 3,
+     "reps": 15,
+     "hold_sec": 0,
+     "rest_sets": 45,
+     "rest_after": 60,
+     "note": ""
+    },
+    {
+     "exercise_id": "hanging_knee_raise",
+     "name": "Hanging Knee Raise",
+     "kind": "reps",
+     "sets": 3,
+     "reps": 10,
+     "hold_sec": 0,
+     "rest_sets": 45,
+     "rest_after": 60,
+     "note": ""
+    },
+    {
+     "exercise_id": "hollow_hold",
+     "name": "Hollow Body Hold",
+     "kind": "hold",
+     "sets": 3,
+     "reps": 0,
+     "hold_sec": 25,
+     "rest_sets": 45,
+     "rest_after": 60,
+     "note": ""
+    },
+    {
+     "exercise_id": "plank",
+     "name": "Plank",
+     "kind": "hold",
+     "sets": 3,
+     "reps": 0,
+     "hold_sec": 40,
+     "rest_sets": 45,
+     "rest_after": 60,
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "name": "Pull Day",
+   "description": "Back and biceps.",
+   "style": "strength",
+   "entries": [
+    {
+     "exercise_id": "pullup",
+     "name": "Pull-Up",
+     "kind": "reps",
+     "sets": 4,
+     "reps": 6,
+     "hold_sec": 0,
+     "rest_sets": 120,
+     "rest_after": 150,
+     "note": ""
+    },
+    {
+     "exercise_id": "australian_row",
+     "name": "Australian Row",
+     "kind": "reps",
+     "sets": 3,
+     "reps": 10,
+     "hold_sec": 0,
+     "rest_sets": 120,
+     "rest_after": 150,
+     "note": ""
+    },
+    {
+     "exercise_id": "chinup",
+     "name": "Chin-Up",
+     "kind": "reps",
+     "sets": 3,
+     "reps": 5,
+     "hold_sec": 0,
+     "rest_sets": 120,
+     "rest_after": 150,
+     "note": ""
+    },
+    {
+     "exercise_id": "scap_pull",
+     "name": "Scapular Pull-Up",
+     "kind": "reps",
+     "sets": 3,
+     "reps": 10,
+     "hold_sec": 0,
+     "rest_sets": 120,
+     "rest_after": 150,
+     "note": ""
+    },
+    {
+     "exercise_id": "dead_hang",
+     "name": "Dead Hang",
+     "kind": "hold",
+     "sets": 3,
+     "reps": 0,
+     "hold_sec": 30,
+     "rest_sets": 120,
+     "rest_after": 150,
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": 1,
+   "name": "Push Day",
+   "description": "Chest, shoulders and triceps.",
+   "style": "strength",
+   "entries": [
+    {
+     "exercise_id": "pushup",
+     "name": "Push-Up",
+     "kind": "reps",
+     "sets": 4,
+     "reps": 10,
+     "hold_sec": 0,
+     "rest_sets": 120,
+     "rest_after": 150,
+     "note": ""
+    },
+    {
+     "exercise_id": "pike_pushup",
+     "name": "Pike Push-Up",
+     "kind": "reps",
+     "sets": 3,
+     "reps": 8,
+     "hold_sec": 0,
+     "rest_sets": 120,
+     "rest_after": 150,
+     "note": ""
+    },
+    {
+     "exercise_id": "dip",
+     "name": "Parallel Bar Dip",
+     "kind": "reps",
+     "sets": 3,
+     "reps": 6,
+     "hold_sec": 0,
+     "rest_sets": 120,
+     "rest_after": 150,
+     "note": ""
+    },
+    {
+     "exercise_id": "diamond_pushup",
+     "name": "Diamond Push-Up",
+     "kind": "reps",
+     "sets": 3,
+     "reps": 8,
+     "hold_sec": 0,
+     "rest_sets": 120,
+     "rest_after": 150,
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": 4,
+   "name": "Skill Training",
+   "description": "Low-fatigue practice of handstands, levers and planche.",
+   "style": "skill",
+   "entries": [
+    {
+     "exercise_id": "wall_handstand",
+     "name": "Wall Handstand",
+     "kind": "hold",
+     "sets": 5,
+     "reps": 0,
+     "hold_sec": 30,
+     "rest_sets": 90,
+     "rest_after": 120,
+     "note": ""
+    },
+    {
+     "exercise_id": "crow_pose",
+     "name": "Crow Pose",
+     "kind": "hold",
+     "sets": 4,
+     "reps": 0,
+     "hold_sec": 15,
+     "rest_sets": 90,
+     "rest_after": 120,
+     "note": ""
+    },
+    {
+     "exercise_id": "tuck_front_lever",
+     "name": "Tuck Front Lever",
+     "kind": "hold",
+     "sets": 4,
+     "reps": 0,
+     "hold_sec": 8,
+     "rest_sets": 90,
+     "rest_after": 120,
+     "note": ""
+    },
+    {
+     "exercise_id": "planche_lean",
+     "name": "Planche Lean",
+     "kind": "hold",
+     "sets": 4,
+     "reps": 0,
+     "hold_sec": 15,
+     "rest_sets": 90,
+     "rest_after": 120,
+     "note": ""
+    },
+    {
+     "exercise_id": "skin_the_cat",
+     "name": "Skin the Cat",
+     "kind": "reps",
+     "sets": 3,
+     "reps": 4,
+     "hold_sec": 0,
+     "rest_sets": 90,
+     "rest_after": 120,
+     "note": ""
+    },
+    {
+     "exercise_id": "tuck_l_sit",
+     "name": "Tuck L-Sit",
+     "kind": "hold",
+     "sets": 4,
+     "reps": 0,
+     "hold_sec": 15,
+     "rest_sets": 90,
+     "rest_after": 120,
+     "note": ""
+    }
+   ]
+  }
+ ]
+};
+
+</script>
+  <script>
+/* Calix Store - local (browser) implementation of the Calix JSON API.
+ *
+ * The static build has no backend, so this file mirrors the FastAPI endpoints
+ * on top of localStorage. Response shapes are identical to backend/app.py,
+ * which lets the UI code stay the same.
+ */
+(function () {
+  'use strict';
+
+  const CATALOG = window.CALIX_CATALOG || { skills: [], workouts: [], categories: [] };
+  const STORAGE_KEY = 'calix.data.v1';
+  const MAX_HISTORY = 200;
+
+  const skillsById = new Map(CATALOG.skills.map((s) => [s.id, s]));
+  const workoutsById = new Map(CATALOG.workouts.map((w) => [w.id, w]));
+
+  // --------------------------------------------------------------- storage
+  function emptyState() {
+    return {
+      version: 1,
+      progress: {},   // {skill_id: 'training' | 'completed'}
+      records: {},    // {skill_id: best value}
+      bests: {},      // {'exercise_id|kind': {value, name}}
+      active: null,   // running session
+      history: [],    // completed session summaries, newest first
+      nextSessionId: 1,
+      nextSetId: 1,
+    };
+  }
+
+  function normalizeState(raw) {
+    const out = emptyState();
+    if (!raw || typeof raw !== 'object') return out;
+
+    if (raw.progress && typeof raw.progress === 'object') {
+      for (const [id, value] of Object.entries(raw.progress)) {
+        if (skillsById.has(id) && (value === 'training' || value === 'completed')) {
+          out.progress[id] = value;
+        }
+      }
+    }
+    if (raw.records && typeof raw.records === 'object') {
+      for (const [id, value] of Object.entries(raw.records)) {
+        if (skillsById.has(id) && Number.isFinite(Number(value)) && Number(value) > 0) {
+          out.records[id] = Number(value);
+        }
+      }
+    }
+    if (raw.bests && typeof raw.bests === 'object') {
+      for (const [key, item] of Object.entries(raw.bests)) {
+        if (item && Number.isFinite(Number(item.value))) {
+          out.bests[key] = { value: Number(item.value), name: String(item.name || '') };
+        }
+      }
+    }
+    if (Array.isArray(raw.history)) {
+      out.history = raw.history.filter((x) => x && typeof x === 'object').slice(0, MAX_HISTORY);
+    }
+    if (raw.active && Array.isArray(raw.active.sets) && raw.active.sets.length) {
+      const active = raw.active;
+      const sets = active.sets
+        .filter((s) => s && Number.isFinite(Number(s.id)))
+        .map((s) => ({
+          id: Number(s.id),
+          ex_pos: Number(s.ex_pos) || 0,
+          set_idx: Number(s.set_idx) || 0,
+          exercise_id: String(s.exercise_id || ''),
+          exercise_name: String(s.exercise_name || ''),
+          kind: s.kind === 'hold' ? 'hold' : 'reps',
+          target_reps: Number(s.target_reps) || 0,
+          target_hold: Number(s.target_hold) || 0,
+          reps: Number(s.reps) || 0,
+          hold: Number(s.hold) || 0,
+          rest_sec: Number(s.rest_sec) || 0,
+          done: Boolean(s.done),
+        }));
+      if (sets.length) {
+        out.active = {
+          id: Number(active.id) || 1,
+          workout_id: Number(active.workout_id) || 0,
+          workout_name: String(active.workout_name || ''),
+          session_date: String(active.session_date || todayISO()),
+          started: String(active.started || new Date().toISOString()),
+          sets,
+        };
+      }
+    }
+
+    const maxSessionId = out.history.reduce((max, h) => Math.max(max, Number(h.id) || 0), 0);
+    out.nextSessionId = Math.max(Number(raw.nextSessionId) || 0, maxSessionId + 1, 1);
+    const maxSetId = out.active ? out.active.sets.reduce((max, s) => Math.max(max, s.id), 0) : 0;
+    out.nextSetId = Math.max(Number(raw.nextSetId) || 0, maxSetId + 1, 1);
+    return out;
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? normalizeState(JSON.parse(raw)) : emptyState();
+    } catch (err) {
+      console.warn('Calix: cannot read local storage', err);
+      return emptyState();
+    }
+  }
+
+  let data = loadState();
+
+  function save() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch (err) {
+      throw new Error('Browser storage is not available. Enable cookies/localStorage.');
+    }
+  }
+
+  // ----------------------------------------------------------------- utils
+  function todayISO() {
+    const d = new Date();
+    const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0, 10);
+  }
+
+  function statusOf(skill, progress) {
+    const cur = progress[skill.id];
+    if (cur === 'completed') return 'completed';
+    if (skill.prereqs.every((p) => progress[p] === 'completed')) {
+      return cur === 'training' ? 'training' : 'available';
+    }
+    return 'locked';
+  }
+
+  function skillPayload(skill, progress) {
+    const missing = skill.prereqs
+      .filter((p) => progress[p] !== 'completed')
+      .map((p) => (skillsById.get(p) || { name: p }).name);
+    return {
+      id: skill.id,
+      name: skill.name,
+      category: skill.category,
+      category_name: skill.category_name,
+      category_color: skill.category_color,
+      tier: skill.tier,
+      tier_name: skill.tier_name,
+      description: skill.description,
+      steps: skill.steps,
+      exercises: skill.exercises,
+      regressions: skill.regressions,
+      unit: skill.unit,
+      target: skill.target,
+      note: skill.note,
+      status: statusOf(skill, progress),
+      best: data.records[skill.id] ?? null,
+      prereqs: skill.prereqs,
+      missing,
+    };
+  }
+
+  function workoutPayload(workout) {
+    const totalSets = workout.entries.reduce((sum, e) => sum + Number(e.sets), 0);
+    return {
+      id: workout.id,
+      name: workout.name,
+      description: workout.description || '',
+      style: workout.style || '',
+      exercise_count: workout.entries.length,
+      total_sets: totalSets,
+      minutes: Math.max(1, Math.round((totalSets * 40) / 60)),
+    };
+  }
+
+  function sessionPayload(session) {
+    const current = session.sets.find((s) => !s.done) || null;
+    return {
+      id: session.id,
+      sets: session.sets,
+      current,
+      remaining: session.sets.filter((s) => !s.done).length,
+    };
+  }
+
+  function activePayload() {
+    const session = data.active;
+    if (!session) return { active: null };
+    return {
+      active: {
+        ...sessionPayload(session),
+        workout_name: session.workout_name,
+        session_date: session.session_date,
+        started: session.started,
+        elapsed_sec: elapsedOf(session),
+      },
+    };
+  }
+
+  function elapsedOf(session) {
+    const started = Date.parse(session.started || '');
+    if (!Number.isFinite(started)) return 0;
+    return Math.max(0, Math.round((Date.now() - started) / 1000));
+  }
+
+  function requireActive(sid) {
+    if (!data.active || data.active.id !== Number(sid)) {
+      throw new Error('No active session.');
+    }
+    return data.active;
+  }
+
+  // -------------------------------------------------------------- endpoints
+  function getMeta() {
+    return {
+      version: '1.0.0-static',
+      data_dir: 'this browser (localStorage)',
+      db_path: STORAGE_KEY,
+      skill_count: CATALOG.skills.length,
+    };
+  }
+
+  function getSkills() {
+    return {
+      categories: CATALOG.categories,
+      skills: CATALOG.skills.map((s) => skillPayload(s, data.progress)),
+    };
+  }
+
+  function getSkill(sid) {
+    const skill = skillsById.get(sid);
+    if (!skill) throw new Error('Unknown skill');
+    return skillPayload(skill, data.progress);
+  }
+
+  function setSkillStatus(sid, status) {
+    if (!skillsById.has(sid)) throw new Error('Unknown skill');
+    if (![null, 'training', 'completed'].includes(status)) throw new Error('Invalid status');
+    if (status === null) delete data.progress[sid];
+    else data.progress[sid] = status;
+    save();
+    return getSkill(sid);
+  }
+
+  function addRecord(sid, value) {
+    if (!skillsById.has(sid)) throw new Error('Unknown skill');
+    const amount = Number(value);
+    if (!Number.isFinite(amount) || amount <= 0) throw new Error('Value must be positive');
+    data.records[sid] = Math.max(Number(data.records[sid]) || 0, amount);
+    save();
+    return getSkill(sid);
+  }
+
+  function getWorkouts() {
+    return { workouts: CATALOG.workouts.map(workoutPayload) };
+  }
+
+  function getWorkout(wid) {
+    const workout = workoutsById.get(Number(wid));
+    if (!workout) throw new Error('Unknown workout');
+    return {
+      ...workoutPayload(workout),
+      entries: workout.entries.map((e) => ({
+        exercise_id: e.exercise_id,
+        name: e.name,
+        kind: e.kind,
+        sets: e.sets,
+        reps: e.reps,
+        hold_sec: e.hold_sec,
+        rest_sets: e.rest_sets,
+        note: e.note || '',
+      })),
+    };
+  }
+
+  function startSession(workoutId) {
+    if (data.active) throw new Error('A session is already in progress.');
+    const workout = workoutsById.get(Number(workoutId));
+    if (!workout || !workout.entries.length) throw new Error('This workout has no exercises.');
+
+    const sets = [];
+    workout.entries.forEach((entry, pos) => {
+      for (let i = 0; i < entry.sets; i += 1) {
+        const lastSet = i === entry.sets - 1;
+        let rest = lastSet ? entry.rest_after || entry.rest_sets : entry.rest_sets;
+        if (pos === workout.entries.length - 1 && lastSet) rest = 0;
+        sets.push({
+          id: data.nextSetId++,
+          ex_pos: pos,
+          set_idx: i,
+          exercise_id: entry.exercise_id,
+          exercise_name: entry.name,
+          kind: entry.kind,
+          target_reps: entry.reps,
+          target_hold: entry.hold_sec,
+          reps: entry.reps,
+          hold: entry.hold_sec,
+          rest_sec: rest,
+          done: false,
+        });
+      }
+    });
+
+    data.active = {
+      id: data.nextSessionId++,
+      workout_id: workout.id,
+      workout_name: workout.name,
+      session_date: todayISO(),
+      started: new Date().toISOString(),
+      sets,
+    };
+    save();
+    return { ...sessionPayload(data.active), workout_name: workout.name };
+  }
+
+  function updateSet(sid, setId, done) {
+    const session = requireActive(sid);
+    const row = session.sets.find((s) => s.id === Number(setId));
+    if (!row) throw new Error('Unknown set');
+    row.done = Boolean(done);
+    save();
+    return sessionPayload(session);
+  }
+
+  function discardSession(sid) {
+    requireActive(sid);
+    data.active = null;
+    save();
+    return { ok: true };
+  }
+
+  function finishSession(sid, fallbackElapsed) {
+    const session = requireActive(sid);
+    const doneSets = session.sets.filter((s) => s.done);
+    if (!doneSets.length) {
+      data.active = null;
+      save();
+      return { summary: null };
+    }
+
+    const summary = {
+      id: session.id,
+      workout_name: session.workout_name,
+      session_date: session.session_date,
+      elapsed_sec: Number.isFinite(Date.parse(session.started || ''))
+        ? elapsedOf(session)
+        : Math.max(0, Number(fallbackElapsed) || 0),
+      sets_done: doneSets.length,
+      sets_total: session.sets.length,
+      reps_total: doneSets.reduce((n, s) => n + (s.kind === 'reps' ? s.reps : 0), 0),
+      hold_total: doneSets.reduce((n, s) => n + (s.kind === 'hold' ? s.hold : 0), 0),
+      exercises_done: new Set(doneSets.map((s) => s.exercise_id)).size,
+    };
+
+    // Best done set per exercise and kind, compared with previous sessions.
+    const current = new Map();
+    for (const s of doneSets) {
+      const key = `${s.exercise_id}|${s.kind}`;
+      const value = s.kind === 'reps' ? s.reps : s.hold;
+      const known = current.get(key);
+      if (!known || value > known.value) {
+        current.set(key, { value, name: s.exercise_name });
+      }
+    }
+
+    const prs = [];
+    for (const [key, row] of current) {
+      const previous = data.bests[key];
+      if (previous && row.value > previous.value) {
+        prs.push({
+          name: row.name,
+          value: row.value,
+          previous: previous.value,
+          unit: key.endsWith('|hold') ? 's' : 'reps',
+        });
+      }
+      if (!previous || row.value > previous.value) {
+        data.bests[key] = { value: row.value, name: row.name };
+      }
+    }
+
+    summary.prs = prs;
+    data.history.unshift(summary);
+    data.history = data.history.slice(0, MAX_HISTORY);
+    data.active = null;
+    save();
+    return { summary };
+  }
+
+  function getStats() {
+    const progress = data.progress;
+    const total = CATALOG.skills.length;
+    let done = 0;
+    let training = 0;
+    for (const skill of CATALOG.skills) {
+      const status = statusOf(skill, progress);
+      if (status === 'completed') done += 1;
+      else if (status === 'training') training += 1;
+    }
+    const categories = CATALOG.categories
+      .map((c) => {
+        const skills = CATALOG.skills.filter((s) => s.category === c.key);
+        return {
+          ...c,
+          done: skills.filter((s) => statusOf(s, progress) === 'completed').length,
+          total: skills.length,
+        };
+      })
+      .filter((c) => c.total > 0);
+    return { total, done, training, available: total - done - training, categories };
+  }
+
+  async function request(path, { method = 'GET', body } = {}) {
+    const [pathname, queryString] = String(path).split('?');
+    const query = new URLSearchParams(queryString || '');
+    let match;
+
+    if (pathname === '/meta' && method === 'GET') return getMeta();
+    if (pathname === '/skills' && method === 'GET') return getSkills();
+    if ((match = pathname.match(/^\/skills\/([^/]+)$/)) && method === 'GET') {
+      return getSkill(decodeURIComponent(match[1]));
+    }
+    if ((match = pathname.match(/^\/skills\/([^/]+)\/status$/)) && method === 'POST') {
+      return setSkillStatus(decodeURIComponent(match[1]), body ? body.status : null);
+    }
+    if ((match = pathname.match(/^\/skills\/([^/]+)\/record$/)) && method === 'POST') {
+      return addRecord(decodeURIComponent(match[1]), body ? body.value : 0);
+    }
+    if (pathname === '/workouts' && method === 'GET') return getWorkouts();
+    if ((match = pathname.match(/^\/workouts\/(\d+)$/)) && method === 'GET') {
+      return getWorkout(match[1]);
+    }
+    if (pathname === '/sessions/active' && method === 'GET') return activePayload();
+    if (pathname === '/sessions/start' && method === 'POST') {
+      return startSession(body ? body.workout_id : 0);
+    }
+    if ((match = pathname.match(/^\/sessions\/(\d+)\/sets\/(\d+)$/)) && method === 'POST') {
+      return updateSet(match[1], match[2], body ? body.done : false);
+    }
+    if ((match = pathname.match(/^\/sessions\/(\d+)\/discard$/)) && method === 'POST') {
+      return discardSession(match[1]);
+    }
+    if ((match = pathname.match(/^\/sessions\/(\d+)\/finish$/)) && method === 'POST') {
+      return finishSession(match[1], Number(query.get('elapsed')) || 0);
+    }
+    if (pathname === '/stats' && method === 'GET') return getStats();
+    if (pathname === '/backups' && method === 'GET') {
+      return { backups: [], dir: 'localStorage' };
+    }
+    throw new Error(`Unknown API route: ${method} ${pathname}`);
+  }
+
+  // --------------------------------------------------------- export/import
+  function exportData() {
+    return JSON.stringify(
+      {
+        app: 'calix',
+        format: 1,
+        exported_at: new Date().toISOString(),
+        data,
+      },
+      null,
+      2
+    );
+  }
+
+  function importData(text) {
+    let parsed;
+    try {
+      parsed = JSON.parse(text);
+    } catch (err) {
+      throw new Error('The file is not valid JSON.');
+    }
+    const raw = parsed && parsed.data && typeof parsed.data === 'object' ? parsed.data : parsed;
+    if (!raw || typeof raw !== 'object') throw new Error('Unrecognized backup file.');
+    if (!raw.progress && !raw.records && !raw.history && !raw.active) {
+      throw new Error('This does not look like a Calix backup.');
+    }
+    data = normalizeState(raw);
+    save();
+    return getMeta();
+  }
+
+  function snapshot() {
+    return JSON.parse(JSON.stringify(data));
+  }
+
+  window.CalixStore = {
+    request,
+    exportData,
+    importData,
+    snapshot,
+    STORAGE_KEY,
+  };
+})();
+
+</script>
+  <script>
+/* Calix Web - single page frontend.
+   Same screens and behaviour as the Flet mobile app, but plain HTML/CSS/JS. */
+
+'use strict';
+
+const $ = (sel, root = document) => root.querySelector(sel);
+
+const COLORS = {
+  completed: '#69db7c',
+  training: '#ffd43b',
+  available: '#4dabf7',
+  locked: '#4a5568',
+};
+
+const ICONS = {
+  chevron: '<path d="M9 6l6 6-6 6"/>',
+  back: '<path d="M15 5l-7 7 7 7"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/>',
+  home: '<path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/>',
+  skills: '<circle cx="12" cy="5" r="2.2"/><circle cx="6" cy="19" r="2.2"/><circle cx="18" cy="19" r="2.2"/><path d="M12 7.2v5.3M12 12.5 6 17M12 12.5l6 4.5"/>',
+  train: '<path d="M4 9v6M7 7v10M17 7v10M20 9v6M7 12h10"/>',
+  stats: '<path d="M4 19V5M4 19h16"/><path d="M8 15l3-4 3 2 4-6"/>',
+  more: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
+  checkCircle: '<circle cx="12" cy="12" r="9"/><path d="m8 12.4 2.6 2.6L16 9.6"/>',
+  circle: '<circle cx="12" cy="12" r="9"/>',
+  playCircle: '<circle cx="12" cy="12" r="9"/><path d="M10 8.6v6.8l5.4-3.4z" fill="currentColor" stroke="none"/>',
+  radio: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/>',
+  lock: '<rect x="5" y="10" width="14" height="10" rx="2.2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
+  play: '<path d="M8 5l11 7-11 7z"/>',
+  stop: '<rect x="7" y="7" width="10" height="10" rx="1.5"/>',
+  check: '<path d="m5 12.5 4.5 4.5L19 7"/>',
+  undo: '<path d="M9 7 4 12l5 5"/><path d="M4 12h9a6 6 0 0 1 0 12"/>',
+  flag: '<path d="M6 21V4h12l-2.5 4L18 12H6"/>',
+  trash: '<path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/>',
+  database: '<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+  folder: '<path d="M3 7h6l2 2h10v10H3z"/>',
+  download: '<path d="M12 4v10m-4-4 4 4 4-4M5 19h14"/>',
+  upload: '<path d="M12 20V10m-4 4 4-4 4 4M5 5h14"/>',
+  events: '<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/><path d="m9 15 2 2 4-4"/>',
+  trend: '<path d="M4 16l5-6 4 3 6-8"/><path d="M14 5h5v5"/>',
+  dumbbell: '<path d="M4 9v6M7 7v10M17 7v10M20 9v6M7 12h10"/>',
+};
+
+function icon(name, extra = '') {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ${extra}>${ICONS[name] || ''}</svg>`;
+}
+
+const STATUS_ICON = {
+  completed: 'checkCircle',
+  training: 'playCircle',
+  available: 'radio',
+  locked: 'lock',
+};
+
+const state = {
+  tab: 0,
+  stack: [],
+  override: null,
+  startedAt: Number(sessionStorage.getItem('calix.startedAt') || 0),
+  summary: null,
+  skillsCache: null,
+  filter: null,
+  query: '',
+};
+
+const TAB_META = [
+  ['Calix', 'offline calisthenics', 'home'],
+  ['Skills', 'your progression tree', 'skills'],
+  ['Workout', 'train today', 'workouts'],
+  ['Stats', 'your numbers', 'stats'],
+  ['More', 'settings & data', 'more'],
+];
+
+// ----------------------------------------------------------------- internet
+// Static build: window.CalixStore mirrors the FastAPI endpoints on localStorage.
+async function api(path, { method = 'GET', body } = {}) {
+  return window.CalixStore.request(path, { method, body });
+}
+
+function toast(message) {
+  const box = $('#toast');
+  box.textContent = message;
+  box.hidden = false;
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => { box.hidden = true; }, 3200);
+}
+
+// --------------------------------------------------------------- formatting
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+}[c]));
+
+const amountText = (row) => row.kind === 'hold' ? `${row.hold} s` : `${row.reps} reps`;
+
+function progressBar(value, colorClass = '', color = '') {
+  const pct = Math.max(0, Math.min(100, Math.round(value * 100)));
+  const fill = color ? `background:${color}` : '';
+  return `<div class="bar ${colorClass}"><i style="width:${pct}%;${fill}"></i></div>`;
+}
+
+// ------------------------------------------------------------------- shell
+async function render() {
+  let view;
+  if (state.override) view = { name: state.override };
+  else if (state.stack.length) view = state.stack[state.stack.length - 1];
+  else view = { name: TAB_META[state.tab][2] };
+  const title = view.title ?? TAB_META[state.tab][0];
+  const sub = view.sub ?? TAB_META[state.tab][1];
+  $('#page-title').textContent = title;
+  $('#page-sub').textContent = sub;
+  $('#back').hidden = state.stack.length === 0;
+
+  document.querySelectorAll('.bottombar button').forEach((b) => {
+    b.classList.toggle('active', Number(b.dataset.tab) === state.tab);
+  });
+
+  const screen = $('#screen');
+  try {
+    const result = await VIEWS[view.name](view.params || {});
+    screen.innerHTML = result.html;
+    if (result.title !== undefined) $('#page-title').textContent = result.title;
+    if (result.sub !== undefined) $('#page-sub').textContent = result.sub;
+  } catch (err) {
+    screen.innerHTML = `<div class="card"><div class="desc">${esc(err.message)}</div></div>`;
+  }
+  screen.scrollTop = 0;
+}
+
+function setTab(index, { push = false } = {}) {
+  state.tab = index;
+  state.stack = [];
+  state.override = null;
+  if (push) history.pushState({ depth: 0 }, '');
+  else history.replaceState({ depth: 0 }, '');
+  render();
+}
+
+function navigate(name, params = {}) {
+  state.override = null;
+  state.stack.push({ name, params });
+  history.pushState({ depth: state.stack.length }, '');
+  render();
+}
+
+function goBack() {
+  if (state.stack.length) history.back();
+}
+
+window.addEventListener('popstate', (event) => {
+  const depth = event.state && typeof event.state.depth === 'number' ? event.state.depth : 0;
+  if (depth === 0) {
+    state.stack = [];
+    state.override = null;
+  } else {
+    state.stack = state.stack.slice(0, depth);
+  }
+  render();
+});
+
+// -------------------------------------------------------------------- views
+const VIEWS = {};
+
+VIEWS.home = async () => {
+  const [skills, stats] = await Promise.all([api('/skills'), api('/stats')]);
+  const pct = stats.total ? stats.done / stats.total : 0;
+
+  const next = nextUp(skills.skills).slice(0, 3);
+  const nextRows = next.length
+    ? next.map(skillRow).join('')
+    : `<div class="empty">Everything unlocked is already completed. Legend.</div>`;
+
+  const tiles = [
+    ['skills', 'Skills', '#4dabf7', 1],
+    ['train', 'Workout', '#51cf66', 2],
+    ['stats', 'Stats', '#ffd43b', 3],
+  ].map(([ic, label, color, tab]) =>
+    `<button class="tile" data-action="tab" data-tab="${tab}">
+       <span style="color:${color}">${icon(ic)}</span><span>${label}</span>
+     </button>`).join('');
+
+  return {
+    html: `
+      <div class="card">
+        <div class="progress-head">
+          <div class="title">Skill progress</div>
+          <div class="count">${stats.done}/${stats.total}</div>
+        </div>
+        ${progressBar(pct)}
+        <div class="muted">${Math.round(pct * 100)}% complete · ${stats.training} training · ${stats.available} open</div>
+      </div>
+
+      <div class="tiles">${tiles}</div>
+
+      <h2 class="section">Next up</h2>
+      ${next.length ? `<div class="card flush"><div class="list">${nextRows}</div></div>` : nextRows}
+    `,
+  };
+};
+
+function nextUp(skills) {
+  const training = skills.filter((s) => s.status === 'training');
+  const available = skills.filter((s) => s.status === 'available');
+  return [...training, ...available];
+}
+
+function skillRow(skill) {
+  const color = COLORS[skill.status];
+  return `
+    <button class="item" data-action="skill" data-id="${esc(skill.id)}">
+      <span class="icon" style="color:${color}">${icon(STATUS_ICON[skill.status])}</span>
+      <span class="text">
+        <span class="name">${esc(skill.name)}</span>
+        <span class="meta">${esc(skill.tier_name)} · ${esc(skill.category_name)}</span>
+      </span>
+      <span class="chev">${icon('chevron')}</span>
+    </button>`;
+}
+
+VIEWS.skills = async () => {
+  const data = await api('/skills');
+  const search = `
+    <div class="search">
+      ${icon('search')}
+      <input id="skill-search" type="search" placeholder="Search skills…" value="${esc(state.query)}" autocomplete="off">
+    </div>`;
+
+  const chips = [
+    `<button class="chip ${state.filter === null ? 'selected' : ''}" data-action="filter" data-key="">All</button>`,
+    ...data.categories.map((c) =>
+      `<button class="chip ${state.filter === c.key ? 'selected' : ''}" data-action="filter" data-key="${esc(c.key)}">${esc(c.name)}</button>`),
+  ].join('');
+
+  const q = state.query.trim().toLowerCase();
+  const visible = data.skills.filter((s) =>
+    (!state.filter || s.category === state.filter) &&
+    (!q || s.name.toLowerCase().includes(q) || s.description.toLowerCase().includes(q)));
+
+  let rows = '';
+  let currentCat = null;
+  for (const skill of visible) {
+    if (!q && skill.category !== currentCat) {
+      currentCat = skill.category;
+      rows += `<div class="cat-head">
+                 <span class="bar-y" style="background:${skill.category_color}"></span>
+                 <span class="name">${esc(skill.category_name)}</span>
+               </div>`;
+    }
+    rows += skillRow(skill);
+  }
+  if (!visible.length) rows = `<div class="empty">No skills match this filter.</div>`;
+
+  return {
+    html: `${search}<div class="chips">${chips}</div><div class="list">${rows}</div>`,
+    sub: `${visible.length} of ${data.skills.length} skills`,
+  };
+};
+
+VIEWS.skill = async ({ id }) => {
+  const skill = await api(`/skills/${encodeURIComponent(id)}`);
+  const color = COLORS[skill.status];
+  const canTrain = skill.status === 'available' || skill.status === 'training';
+
+  const benchmark = skill.unit && skill.target
+    ? `<div class="muted" style="color:${skill.best && skill.best >= skill.target ? '#69db7c' : ''}">
+         Benchmark: ${skill.target} ${esc(skill.unit)}${skill.best ? ` · best ${skill.best}` : ''}
+       </div>`
+    : '';
+
+  const steps = skill.steps.map((s) =>
+    `<div class="step"><b>•</b><span>${esc(s)}</span></div>`).join('');
+
+  const note = skill.note ? `<div class="note">${esc(skill.note)}</div>` : '';
+
+  return {
+    title: skill.name,
+    sub: `${skill.tier_name} · ${skill.category_name}`,
+    html: `
+      <div class="card stack">
+        <div><span class="badge ${skill.status}" style="color:${color}">${skill.status.toUpperCase()}</span></div>
+        <div class="desc">${esc(skill.description)}</div>
+        ${benchmark}
+      </div>
+
+      <div class="card stack">
+        <h2 class="section" style="margin:0">Progression</h2>
+        <div class="steps">${steps}</div>
+      </div>
+
+      ${note ? `<div class="card">${note}</div>` : ''}
+
+      <div class="actions">
+        <button class="btn" data-action="train" data-id="${esc(skill.id)}"
+          ${canTrain ? '' : 'disabled'}>
+          ${icon(skill.status === 'training' ? 'stop' : 'play')}
+          ${skill.status === 'training' ? 'Stop training' : 'Start training'}
+        </button>
+        <button class="btn outline" data-action="complete" data-id="${esc(skill.id)}">
+          ${icon(skill.status === 'completed' ? 'undo' : 'check')}
+          ${skill.status === 'completed' ? 'Undo' : 'Complete'}
+        </button>
+      </div>
+    `,
+  };
+};
+
+VIEWS.workouts = async () => {
+  const [{ active }, data] = await Promise.all([api('/sessions/active'), api('/workouts')]);
+
+  if (active) {
+    return {
+      html: `
+        <div class="card stack">
+          <h2 class="section" style="margin:0">Workout in progress</h2>
+          <div class="desc">${esc(active.workout_name)}</div>
+          <div class="muted">${esc(active.session_date)} · ${Math.floor(active.elapsed_sec / 60)} min · ${active.remaining} sets left</div>
+          <button class="btn" data-action="resume">${icon('play')}Resume</button>
+        </div>`,
+    };
+  }
+
+  const rows = data.workouts.map((w) => `
+    <button class="item-card" data-action="workout" data-id="${w.id}">
+      <span class="text">
+        <span class="name">${esc(w.name)}</span>
+        <span class="meta">${w.exercise_count} exercises · ${w.total_sets} sets · ~${w.minutes} min</span>
+      </span>
+      <span class="go">${icon('playCircle')}</span>
+    </button>`).join('');
+
+  return {
+    html: `
+      <h2 class="section">Saved workouts</h2>
+      ${rows || '<div class="card"><div class="empty">No workouts yet.</div></div>'}
+    `,
+  };
+};
+
+VIEWS.workout = async ({ id }) => {
+  const w = await api(`/workouts/${id}`);
+  const rows = w.entries.map((e, i) => {
+    const amount = e.kind === 'hold' ? `${e.hold_sec} s` : `${e.reps} reps`;
+    return `
+      <div class="row" style="align-items:flex-start">
+        <span class="muted" style="width:16px">${i + 1}</span>
+        <span class="text" style="flex:1;min-width:0">
+          <span class="name" style="display:block;font-size:12px">${esc(e.name)}</span>
+          <span class="meta">${e.sets} × ${amount} · rest ${e.rest_sets} s</span>
+        </span>
+      </div>`;
+  }).join('');
+
+  return {
+    title: w.name,
+    sub: 'workout preview',
+    html: `
+      <div class="card stack">
+        <div class="desc" style="font-weight:600">${esc(w.name)}</div>
+        <div class="muted">${esc(w.description || '')}</div>
+      </div>
+      <div class="list" style="gap:4px">${rows}</div>
+      <button class="btn" data-action="start" data-id="${w.id}">${icon('play')}Start workout</button>
+    `,
+  };
+};
+
+VIEWS.session = async () => {
+  const { active } = await api('/sessions/active');
+  if (!active) {
+    setTimeout(() => setTab(2), 0);
+    return { html: '<div class="empty">No active session.</div>' };
+  }
+  if (!state.startedAt) {
+    state.startedAt = Date.now();
+    sessionStorage.setItem('calix.startedAt', String(state.startedAt));
+  }
+
+  const current = active.current;
+  const groups = [];
+  let lastPos = null;
+  for (const s of active.sets) {
+    if (s.ex_pos !== lastPos) {
+      lastPos = s.ex_pos;
+      groups.push(`<div class="muted" style="padding:8px 4px 2px;font-weight:600;color:#e8ecf5">${esc(s.exercise_name)}</div>`);
+    }
+    groups.push(`
+      <div class="set-row">
+        <button class="check ${s.done ? 'on' : ''}" data-action="toggle-set" data-id="${s.id}"
+          aria-label="${s.done ? 'Mark not done' : 'Mark done'}">${icon(s.done ? 'checkCircle' : 'circle')}</button>
+        <span>Set ${s.set_idx + 1}</span>
+        <span class="spacer"></span>
+        <span class="amount">${amountText(s)}</span>
+      </div>`);
+  }
+
+  const currentCard = current ? `
+    <div class="card stack">
+      <h2 class="section" style="margin:0">${esc(current.exercise_name)}</h2>
+      <div class="desc">Set ${current.set_idx + 1} · ${amountText(current)}</div>
+      <div class="muted">${active.remaining} sets left</div>
+      <button class="btn" data-action="toggle-set" data-id="${current.id}">${icon('check')}Complete set</button>
+    </div>` : `
+    <div class="card stack">
+      <div class="desc">All sets are done.</div>
+      <button class="btn" data-action="finish">${icon('flag')}Finish workout</button>
+    </div>`;
+
+  return {
+    title: 'Workout',
+    sub: active.workout_name || 'session',
+    html: `
+      ${currentCard}
+      <div class="card flush"><div class="list" style="padding:4px">${groups.join('')}</div></div>
+      <div class="actions">
+        <button class="btn danger" data-action="discard">${icon('trash')}Discard</button>
+        <button class="btn" data-action="finish">${icon('flag')}Finish</button>
+      </div>
+    `,
+  };
+};
+
+VIEWS.summary = async () => {
+  const s = state.summary;
+  if (!s) {
+    setTimeout(() => setTab(2), 0);
+    return { html: '<div class="empty">No summary.</div>' };
+  }
+  const prs = (s.prs || []).map((p) => `
+    <div class="card row">
+      <span style="color:#69db7c">${icon('trend')}</span>
+      <span class="desc">PR: ${esc(p.name)} ${p.value} ${esc(p.unit)}</span>
+    </div>`).join('');
+
+  return {
+    title: 'Done',
+    sub: 'workout summary',
+    html: `
+      <div class="card center stack">
+        <div class="big-icon">${icon('events')}</div>
+        <div class="desc" style="font-size:16px;font-weight:700">Workout saved</div>
+        <div class="muted">${esc(s.workout_name || '')}</div>
+      </div>
+      <div class="card stack">
+        <div class="stat"><span class="k">Sets</span><span class="v">${s.sets_done}/${s.sets_total}</span></div>
+        <div class="stat"><span class="k">Reps</span><span class="v">${s.reps_total}</span></div>
+        <div class="stat"><span class="k">Holds</span><span class="v">${s.hold_total} s</span></div>
+        <div class="stat"><span class="k">Exercises</span><span class="v">${s.exercises_done}</span></div>
+      </div>
+      ${prs}
+      <button class="btn" data-action="tab" data-tab="2">Done</button>
+    `,
+  };
+};
+
+VIEWS.stats = async () => {
+  const s = await api('/stats');
+  const cats = s.categories.map((c) => `
+    <div class="stack" style="gap:4px">
+      <div class="row between">
+        <span style="font-size:12px">${esc(c.name)}</span>
+        <span class="muted">${c.done}/${c.total}</span>
+      </div>
+      ${progressBar(c.total ? c.done / c.total : 0, 'thin', c.color)}
+    </div>`).join('');
+
+  return {
+    html: `
+      <div class="card stack">
+        <h2 class="section" style="margin:0">Overview</h2>
+        <div class="stat"><span class="k">Completed</span><span class="v">${s.done}/${s.total}</span></div>
+        <div class="stat"><span class="k">Training</span><span class="v">${s.training}</span></div>
+        <div class="stat"><span class="k">Available</span><span class="v">${s.available}</span></div>
+      </div>
+      <div class="card stack" style="gap:10px">
+        <h2 class="section" style="margin:0">By category</h2>
+        ${cats}
+      </div>
+    `,
+  };
+};
+
+VIEWS.more = async () => {
+  const meta = await api('/meta');
+  return {
+    html: `
+      <div class="card plain">
+        <button class="list-tile" data-action="export">
+          <span class="lt-icon">${icon('download')}</span>
+          <span><span class="lt-title">Export data</span><span class="lt-sub">Download a JSON backup</span></span>
+        </button>
+        <button class="list-tile" data-action="import">
+          <span class="lt-icon">${icon('upload')}</span>
+          <span><span class="lt-title">Import data</span><span class="lt-sub">Restore from a JSON backup</span></span>
+        </button>
+        <div class="list-tile" style="cursor:default">
+          <span class="lt-icon">${icon('database')}</span>
+          <span><span class="lt-title">Data storage</span><span class="lt-sub">${esc(meta.data_dir)}</span></span>
+        </div>
+        <div class="list-tile" style="cursor:default">
+          <span class="lt-icon">${icon('info')}</span>
+          <span><span class="lt-title">About</span><span class="lt-sub">Calix Web ${esc(meta.version)} · offline in your browser</span></span>
+        </div>
+      </div>
+      <div class="muted tiny">Progress is stored only in this browser. Export a backup before clearing browser data or switching devices.</div>
+    `,
+  };
+};
+
+VIEWS.backups = async () => {
+  const data = await api('/backups');
+  const rows = data.backups.length
+    ? data.backups.map((b) => `
+        <div class="list-tile" style="cursor:default">
+          <span class="lt-icon">${icon('download')}</span>
+          <span><span class="lt-title">${esc(b.name)}</span><span class="lt-sub">${Math.round(b.size / 1024)} KB</span></span>
+        </div>`).join('')
+    : '<div class="empty">No backups yet.</div>';
+
+  return {
+    title: 'Backups',
+    sub: 'local snapshots',
+    html: `<div class="list">${rows}</div>`,
+  };
+};
+
+// ------------------------------------------------------------------ actions
+document.addEventListener('click', async (event) => {
+  const navBtn = event.target.closest('.bottombar button');
+  if (navBtn) {
+    setTab(Number(navBtn.dataset.tab));
+    return;
+  }
+
+  const trigger = event.target.closest('[data-action]');
+  if (!trigger) return;
+
+  const { action } = trigger.dataset;
+  try {
+    if (action === 'tab') {
+      setTab(Number(trigger.dataset.tab));
+    } else if (action === 'skill') {
+      navigate('skill', { id: trigger.dataset.id });
+    } else if (action === 'filter') {
+      state.filter = trigger.dataset.key || null;
+      render();
+    } else if (action === 'train') {
+      const skill = await api(`/skills/${encodeURIComponent(trigger.dataset.id)}`);
+      const next = skill.status === 'training' ? null : 'training';
+      await api(`/skills/${encodeURIComponent(skill.id)}/status`, {
+        method: 'POST', body: { status: next },
+      });
+      render();
+    } else if (action === 'complete') {
+      const skill = await api(`/skills/${encodeURIComponent(trigger.dataset.id)}`);
+      const next = skill.status === 'completed' ? null : 'completed';
+      await api(`/skills/${encodeURIComponent(skill.id)}/status`, {
+        method: 'POST', body: { status: next },
+      });
+      render();
+    } else if (action === 'workout') {
+      navigate('workout', { id: Number(trigger.dataset.id) });
+    } else if (action === 'start') {
+      await api('/sessions/start', {
+        method: 'POST', body: { workout_id: Number(trigger.dataset.id) },
+      });
+      state.startedAt = Date.now();
+      sessionStorage.setItem('calix.startedAt', String(state.startedAt));
+      state.override = null;
+      state.stack = [{ name: 'session', params: {} }];
+      history.replaceState({ depth: 1 }, '');
+      render();
+    } else if (action === 'resume') {
+      if (!state.startedAt) {
+        state.startedAt = Date.now();
+        sessionStorage.setItem('calix.startedAt', String(state.startedAt));
+      }
+      navigate('session', {});
+    } else if (action === 'toggle-set') {
+      const row = trigger.closest('.set-row');
+      const isOn = row ? row.querySelector('.check').classList.contains('on') : false;
+      const sid = await activeSessionId();
+      await api(`/sessions/${sid}/sets/${trigger.dataset.id}`, {
+        method: 'POST', body: { done: !isOn },
+      });
+      render();
+    } else if (action === 'finish') {
+      const sid = await activeSessionId();
+      const elapsed = state.startedAt ? Math.round((Date.now() - state.startedAt) / 1000) : 0;
+      const result = await api(`/sessions/${sid}/finish?elapsed=${elapsed}`, { method: 'POST' });
+      sessionStorage.removeItem('calix.startedAt');
+      state.startedAt = 0;
+      if (!result.summary) {
+        state.stack = [];
+        state.override = null;
+        history.replaceState({ depth: 0 }, '');
+        setTab(2);
+        return;
+      }
+      state.summary = result.summary;
+      state.override = 'summary';
+      state.stack = [];
+      history.replaceState({ depth: 0 }, '');
+      render();
+    } else if (action === 'discard') {
+      const sid = await activeSessionId();
+      await api(`/sessions/${sid}/discard`, { method: 'POST' });
+      sessionStorage.removeItem('calix.startedAt');
+      state.startedAt = 0;
+      state.stack = [];
+      state.override = null;
+      history.replaceState({ depth: 0 }, '');
+      render();
+    } else if (action === 'export') {
+      downloadExport();
+    } else if (action === 'import') {
+      const input = $('#import-file');
+      input.value = '';
+      input.click();
+    }
+  } catch (err) {
+    toast(err.message);
+  }
+});
+
+async function activeSessionId() {
+  const { active } = await api('/sessions/active');
+  if (!active) throw new Error('No active session');
+  return active.id;
+}
+
+function downloadExport() {
+  const blob = new Blob([window.CalixStore.exportData()], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  const now = new Date();
+  const day = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  link.href = url;
+  link.download = `calix-data-${day}.json`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+  toast('Data exported.');
+}
+
+$('#import-file').addEventListener('change', async () => {
+  const input = $('#import-file');
+  const file = input.files && input.files[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    window.CalixStore.importData(text);
+    toast('Data imported.');
+    await render();
+  } catch (err) {
+    toast(`Import failed: ${err.message}`);
+  } finally {
+    input.value = '';
+  }
+});
+
+$('#back').addEventListener('click', goBack);
+
+document.addEventListener('input', (event) => {
+  if (event.target.id === 'skill-search') {
+    state.query = event.target.value;
+    clearTimeout(document._searchTimer);
+    document._searchTimer = setTimeout(async () => {
+      const wasFocused = document.activeElement && document.activeElement.id === 'skill-search';
+      await render();
+      const input = $('#skill-search');
+      if (input && wasFocused) {
+        input.focus();
+        input.setSelectionRange(input.value.length, input.value.length);
+      }
+    }, 180);
+  }
+});
+
+// --------------------------------------------------------------------- boot
+history.replaceState({ depth: 0 }, '');
+render();
+
+</script>
+  <script>
+    setTimeout(function () {
+      if (!window.CalixStore || !window.CALIX_CATALOG) {
+        var box = document.getElementById('boot-error');
+        if (box) box.hidden = false;
+      }
+    }, 1200);
+  </script>
+</body>
+</html>
